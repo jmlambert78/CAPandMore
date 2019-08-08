@@ -1,5 +1,13 @@
 # CAPandMore : SCF deploy automation
 
+Prerequisites:
+---
+- HELM client
+- CF client
+- kubectl client
+
+Introduction
+---
 The main script is launched to deploy CAP SCF on a kubernetes cluster deployed before.
 To deploy, ensure that you access a K8S cluster & prepare a PV provisionner (NFS or other)
 
