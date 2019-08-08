@@ -1,7 +1,11 @@
-# CAPandMore
-SCF deploy automation
+# CAPandMore : SCF deploy automation
+
 The main script is launched to deploy CAP SCF on a kubernetes cluster deployed before.
-To deploy, 
+To deploy, ensure that you access a K8S cluster & prepare a PV provisionner (NFS or other)
+
+If you are in AKS, you will need to provide more elements (revision to come) (Subscription etc)
+NB: If you deployed with the https://github.com/jmlambert78/deploy-cap-aks-cluster mechanism, this deployment is compatible and will reuse envvars defined in the previous process (deploy AKS)
+
 Create/modify a new initxxxx.sh file
 ------------------------------
 
