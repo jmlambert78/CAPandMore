@@ -65,6 +65,7 @@ select_cap-version(){
         select ver in "${capversions[@]}"
         do
 	   get-chart-versions $ver
+           break
         done
         fi
 }
@@ -305,7 +306,6 @@ do
             review-cap-config-file
             ;;
 	"Upgrade Version")
-set -x
 	    oldPS3="$PS3"
 	    
 	    PS3="Next Proposed version is $NEXT_UPGRADE_PATH Agree?"
@@ -325,7 +325,6 @@ set -x
 		*)break;;
 		esac
 	    done
-set +x
 	    PS3="$oldPS3"
 	    ;; 
        "Deploy UAA")
