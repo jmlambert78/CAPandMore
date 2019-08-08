@@ -1,6 +1,9 @@
 #!/bin/bash
+#### SCRIPT USED TO DEPLOY CAP on AKS & more
+#### Jean Marc LAMBERT, SUSE EMEA Consulting
+#### 07 AUG 2019
+#### FUNCTIONS used by the script
 
-#### FUTIONS used by the script
 init-cap-deployment(){
         #Check if AKSDEPLOYID envvar exist
         if [[ -z "${AKSDEPLOYID}" ]]; then
