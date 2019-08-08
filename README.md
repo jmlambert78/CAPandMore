@@ -1,4 +1,4 @@
-# CAPandMore : SCF deploy automation
+# CAPandMore : SCF deployment automation
 
 Prerequisites:
 ---
