@@ -1,0 +1,9 @@
+env:    
+    # *** Label of the key to use for db encrption
+    CC_DB_CURRENT_KEY_LABEL: new_key
+
+secrets:
+    CC_DB_ENCRYPTION_KEYS:
+      new_key: "eouZ7OO2vb0lCEnSXxIeepflXPuQeVlP5NWANMmrYYOCtaPSwUewW555GOGmYnBj"
+      migrated_key: "eouZ7OO2vb0lCEnSXxIeepflXPuQeVlP5NWANMmrYYOCtaPSwUewW555GOGmYnBj"
+      azure_key: "AZgBCRsmlTL2syr9uLVuud0xFvNqDqyvZRme1rWMBAiMZuWzIa96bfrH6akkCqYG"

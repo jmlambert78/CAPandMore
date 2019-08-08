@@ -1,0 +1,15 @@
+sizing:
+  mysql:
+    count: 3
+
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - mysql
+            topologyKey: "kubernetes.io/hostname"
+

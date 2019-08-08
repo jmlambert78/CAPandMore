@@ -1,0 +1,16 @@
+env:
+  DOPPLER_PORT: 443
+
+nginx:
+  username: linux
+  password: linux
+
+useLb: true
+
+kubernetes:
+  authEndpoint: https://caasp3m141.jmlzone.com:6443
+
+prometheus:
+  kubeStateMetrics:
+    enabled: true
+useLb: true
