@@ -66,8 +66,20 @@ Launch the CAPandMore.sh script
     Please enter your choice:
 
 Select the Action or set of actions from the menu entries.
-Option "All localK8S" will launch sequentially most steps to deploy CAP on a kubernetes cluster for which you 
-
+- Option "All localK8S" will launch sequentially most steps to deploy CAP on a kubernetes cluster for which you 
+- Option "DELETE CAP" will delete all helm charts of SCF & remove the Namespaces as well
+- Pods XXX : display the pods status in kubectl format
+- Upgrade Version : will process the upgrade path from the current version to the next possible
+    1.3.0 -> 1.3.1 -> 1.4.0 -> 1.4.1
+- AZ options are specific to AKS
+- All Azure : Will launch sequentially most steps to deploy CAP on a AKS cluster
+- Minibroker is useful for local K8S to deliver local service instances (mongo, mysql, postgres, redis, mariadb)
+If you want to deploy manually, step by step, you may select 
+    3,4,5,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26 for an Azure/AKS deployment (equivalent to 27)
+    3,4,5,6,,12,13,15,16,17,19,20,21,22,23,24,25,26 for an local K8S cluster deployment (equivalent to 28)
+    
+    
+    
 
 
 To Do :
