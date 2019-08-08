@@ -4,9 +4,9 @@ The main script is launched to deploy CAP SCF on a kubernetes cluster deployed b
 To deploy, ensure that you access a K8S cluster & prepare a PV provisionner (NFS or other)
 
 If you are in AKS, you will need to provide more elements (revision to come) (Subscription etc)
-NB: If you deployed with the https://github.com/jmlambert78/deploy-cap-aks-cluster mechanism, this deployment is compatible and will reuse envvars defined in the previous process (deploy AKS)
+NB: If you deployed with the https://github.com/jmlambert78/deploy-cap-aks-cluster mechanism, this deployment is compatible and will reuse envvars defined in the previous process (deploy AKS) (and especially the deploy-cap-aks-cluster/init_aks_env.sh )
 
-Create/modify a new initxxxx.sh file
+Create/modify a new initxxxx.sh file (if you have not the above init_aks_env.sh for AKS)
 ------------------------------
 
     #!/bin/bash
