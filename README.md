@@ -56,13 +56,13 @@ NAME         STATUS   ROLES    AGE   VERSION
 caasp3m141   Ready    master   2d    v1.10.11
 caasp3n142   Ready    <none>   2d    v1.10.11
 caasp3n143   Ready    <none>   2d    v1.10.11
- Current installed version
+ Current selected version : 
 1) 1.3.0
 2) 1.3.1
 3) 1.4.0
 4) 1.4.1
 Please enter your choice:     <- Select the Version of CAP you want to deploy    
-Current installed version 1.4.1
+Current selected version 1.4.1
     1) Quit                               9) CF CreateOrgSpace                17) CF 1st mongoDB Service
     2) Review scfConfig                  10) CF 1st mysql Service             18) CF Wait for mongoDB Service
     3) Deploy UAA                        11) CF Wait for 1st Service Created  19) Deploy 2nd App Nodejs
@@ -81,7 +81,7 @@ NAME                       STATUS   ROLES   AGE   VERSION
 aks-jmlpool19-14921831-0   Ready    agent   38h   v1.12.8
 aks-jmlpool19-14921831-1   Ready    agent   38h   v1.12.8
 aks-jmlpool19-14921831-2   Ready    agent   38h   v1.12.8
- Current installed version 1.4.1
+ Current selected version 1.4.1
  1) Quit                             11) Pods AZ OSBA                     21) Deploy Metrics
  2) Review scfConfig                 12) CF API set                       22) Pods Metrics
  3) Deploy UAA                       13) CF Add AZ SB                     23) CF 1st mongoDB Service
