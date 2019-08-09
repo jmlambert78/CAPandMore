@@ -243,7 +243,8 @@ cf-create-minibroker-sb(){
 	cf bind-security-group mysql_networking testorg scftest
 }
 cf-set-api(){
-	if [[ -z "${CFEP}" ]]; then
+echo "CFEP $CFEP"
+	if [ -z "$CFEP" ]; then
 	  CFEP=$(awk '/Public IP:/{print "https://api." $NF ".xip.io"}' $AKSDEPLOYID/deployment.log)
         fi
         echo "CF Endpoint : $CFEP"

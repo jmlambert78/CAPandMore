@@ -10,7 +10,7 @@ export PS1="\w:>\[$(tput sgr0)\]"
 #CFEP=$(awk '/Public IP:/{print "https://api." $NF ".xip.io"}' $AKSDEPLOYID/deployment.log)
 CFEP="https://api.cf.cap2jmlzone.com"
 
-echo "export CFEP=$CFEP" >>$AKSDEPLOYID/.envvar.sh
+echo "export CFEP=\"$CFEP\"" >>$AKSDEPLOYID/.envvar.sh
 
 cf api --skip-ssl-validation $CFEP
 
