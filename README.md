@@ -1,4 +1,4 @@
-# CAPandMore : SCF deployment automation
+# CAPnMore : SCF deployment automation
 
 Prerequisites:
 ---
@@ -12,13 +12,14 @@ The main script is launched to deploy CAP SCF on a kubernetes cluster deployed b
 To deploy, ensure that you access a K8S cluster & prepare a PV provisionner (NFS or other)
 
 If you are in AKS, you will need to provide more elements (revision to come) (Subscription etc)
+
 NB: If you deployed with the https://github.com/jmlambert78/deploy-cap-aks-cluster mechanism, this deployment is compatible and will reuse envvars defined in the previous process (deploy AKS) (and especially the deploy-cap-aks-cluster/init_aks_env.sh )
 
 Create/modify a new initxxxx.sh file (if you have not the above init_aks_env.sh for AKS)
 ------------------------------
 ```
 #!/bin/bash
-export AKSDEPLOYID="$PWD/CAP-080819"  #<- Create a new dir where CAPandMore will set all working files
+export AKSDEPLOYID="$PWD/CAP-080819"  #<- Create a new dir where CAPnMore will set all working files
 export REGION="yourzone"
 export KUBECONFIG="$AKSDEPLOYID/kubeconfig" #<- Copy your kube config file here under kubeconfig
 export CF_HOME="$AKSDEPLOYID/cfconfig"      #<- will be used to store Cloudfoundry setups (to allow multi clusters)
@@ -50,7 +51,7 @@ Launch the capnmore.sh script
 -----
 ./capnmore.sh
 ```
->>>>>> Welcome to the CAPandMORE deployment tool <<<<<<<
+>>>>>> Welcome to the CAPnMORE deployment tool <<<<<<<
 NAME         STATUS   ROLES    AGE   VERSION
 caasp3m141   Ready    master   2d    v1.10.11
 caasp3n142   Ready    <none>   2d    v1.10.11
@@ -75,7 +76,7 @@ Please enter your choice:
 ```
 IF YOU ARE ON AZURE deployment :
 ```
->>>>>> Welcome to the CAPandMORE deployment tool <<<<<<<
+>>>>>> Welcome to the CAPnMORE deployment tool <<<<<<<
 NAME                       STATUS   ROLES   AGE   VERSION
 aks-jmlpool19-14921831-0   Ready    agent   38h   v1.12.8
 aks-jmlpool19-14921831-1   Ready    agent   38h   v1.12.8
@@ -142,12 +143,11 @@ uaa           Active   21h
     
 To Do :
 ----
-- ~~Reorg the labels (too many ;-)
 - Deploy NFS Provisionner (needed to provide PVs in the local K8S)
 - Install HELM if not done in your cluster (rbac + tiller)
 - Integrate the CAP Backup/Restore options
 - Integrate the SCALING options for SCF/UAA
 - ~~Integrate the log of all actions in a file 
-
+- ~~Reorg the labels (too many ;-)
 
 
