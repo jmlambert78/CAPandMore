@@ -36,14 +36,16 @@ mkdir $AKSDEPLOYID
 
 Edit your SCF deployment helm chart values (scf, stratos...)
 -----------
+```
 vim $AKSDEPLOYID/scf-config-values.yaml
 vim $AKSDEPLOYID/ stratos-metrics-values.yaml
 -> update all params, as you need
-
+```
 Test your configuration with kubectl
 --------
+```
 kubectl get nodes # check that it is your k8S cluster
-
+```
 Launch the capnmore.sh script
 -----
 ./capnmore.sh
