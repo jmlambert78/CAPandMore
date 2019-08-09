@@ -5,6 +5,7 @@ Prerequisites:
 - HELM client
 - CF client
 - kubectl client
+- Wildcard DNS entry for your CAP urls like (cf.capjmlzone.com)
 
 Introduction
 ---
