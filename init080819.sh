@@ -1,6 +1,6 @@
 #!/bin/bash
 export AKSDEPLOYID="$PWD/CAP-080819"
-export REGION="jmlzone"
+export REGION="yourzone"
 export KUBECONFIG="$AKSDEPLOYID/kubeconfig"
 export CF_HOME="$AKSDEPLOYID/cfconfig"
 export PS1="\u:\w:$AKSDEPLOYID>\[$(tput sgr0)\]"

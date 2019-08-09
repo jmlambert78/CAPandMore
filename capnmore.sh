@@ -3,6 +3,25 @@
 #### Jean Marc LAMBERT, SUSE EMEA Consulting
 #### 07 AUG 2019
 #### FUNCTIONS used by the script
+save-envvar(){
+	echo "$1" >> $AKSDEPLOYID/.envvar.sh
+}
+log-action(){
+local ts=`date +'%Y-%m-%d_%Hh%M'`
+        echo "$ts: $1" >> $AKSDEPLOYID/history_actions.log
+}
+log-environment(){
+	log-action "vvvvvv Current environment : "
+	log-action "PWD: $(pwd)"$'\n'">>> kubectl get nodes <<<"$'\n'"$(kubectl get nodes)"$'\n'\
+">>> helm list <<<"$'\n'"$(helm list)"$'\n'">>> kubectl get ns <<<"$'\n'"$(kubectl get ns)"
+	log-action "^^^^^^ Current environment"
+}
+log-environment-helm(){
+        log-action "vvvvvv Current environment : "
+        log-action "PWD: $(pwd)"$'\n'">>> helm list <<<"$'\n'"$(helm list)"$'\n'
+        log-action "^^^^^^ Current environment"
+}
+
 
 init-cap-deployment(){
         #Check if AKSDEPLOYID envvar exist
@@ -11,15 +30,17 @@ init-cap-deployment(){
         else
           [ -f  "$AKSDEPLOYID/.envvar.sh" ]; source $AKSDEPLOYID/.envvar.sh;
         fi
-	if [ ! "$REGION" == "jmlzone" ]; then 
+	if [ ! "$REGION" == "yourzone" ]; then 
         	export SUBSCRIPTION_ID=$(az account show | jq -r '.id')
-        	echo "export SUBSCRIPTION_ID=$SUBSCRIPTION_ID" >> $AKSDEPLOYID/.envvar.sh
+        	save-envvar "export SUBSCRIPTION_ID=$SUBSCRIPTION_ID"
         fi
 	export KUBECONFIG="$AKSDEPLOYID/kubeconfig"
-        echo "export KUBECONFIG=$KUBECONFIG" >>$AKSDEPLOYID/.envvar.sh
-	echo ">>>>>> Welcome to the CAPandMORE deployment tool <<<<<<<"
+        save-envvar "export KUBECONFIG=$KUBECONFIG"
+	echo ">>>>>> Welcome to the CAPnMORE deployment tool <<<<<<<"
 	kubectl get nodes
-	echo " Current installed version $CAP_VERSION"
+	echo " Current selected version : $CAP_VERSION"
+	log-action "Launch CAPnMore : Current selected version $CAP_VERSION"
+	log-environment
 }
 get-chart-versions(){
                 case $1 in
@@ -49,13 +70,13 @@ get-chart-versions(){
                            ;;
 	 	        *)echo "Undefined version";;
                 esac
-		echo "export CAP_VERSION=\"$1\"" >> $AKSDEPLOYID/.envvar.sh;
-        echo "export UAA_HELM_VERSION=\"$UAA_HELM_VERSION\"" >> $AKSDEPLOYID/.envvar.sh;
-        echo "export SCF_HELM_VERSION=\"$SCF_HELM_VERSION\"" >> $AKSDEPLOYID/.envvar.sh;
-        echo "export CONSOLE_HELM_VERSION=\"$CONSOLE_HELM_VERSION\"" >> $AKSDEPLOYID/.envvar.sh;
-        echo "export NEXT_UPGRADE_PATH=\"$NEXT_UPGRADE_PATH\"" >> $AKSDEPLOYID/.envvar.sh;
+		save-envvar "export CAP_VERSION=\"$1\"" ;
+        	save-envvar "export UAA_HELM_VERSION=\"$UAA_HELM_VERSION\"";
+        save-envvar "export SCF_HELM_VERSION=\"$SCF_HELM_VERSION\"";
+        save-envvar "export CONSOLE_HELM_VERSION=\"$CONSOLE_HELM_VERSION\"";
+        save-envvar "export NEXT_UPGRADE_PATH=\"$NEXT_UPGRADE_PATH\"";
  echo ">>> Installing CAP version $CAP_VERSION <<<"
-
+log-action "CAP version $CAP_VERSION defined"
 }
 select_cap-version(){
         if [[ -z "${CAP_VERSION}" ]]; then
@@ -75,9 +96,11 @@ review-cap-config-file(){
 }
 watch-pods-of-ns(){
         watch kubectl get pods -n "$1"
+	log-action "Watch pods for $1"
 }
 
 wait-for-pods-ready-of-ns(){
+log-action "Wait for pods readiness for $1"
         echo "Wait for $1 pods to be ready"
         PODSTATUS="1" ; NS=$1 ;
         while [ $PODSTATUS -ne "0" ]; do
@@ -85,6 +108,8 @@ wait-for-pods-ready-of-ns(){
           PODSTATUS=$(kubectl get pod -n $NS|awk 'BEGIN{cnt=0}!/Completed/{if(substr($2,1,1)<substr($2,3,1))cnt=cnt+1;}END{print cnt} ');
           echo "Til $PODSTATUS pods to wait for in $NS";
         done
+log-action "All pods ready for $1"
+ 
 }
 install-helm(){
         kubectl apply -f $AKSDEPLOYID/helm-rbac-config.yaml
@@ -93,69 +118,90 @@ install-helm(){
 }
 deploy-nfs-provionner-local(){
         helm install --name nfs-provisioner stable/nfs-client-provisioner -f $AKSDEPLOYID/nfs-client-provisioner-values.yaml --namespace=kube-system
+        log-environment-helm
 }
 deploy-cap-uaa(){
+    log-action "Installing UAA  $UAA_HELM_VERSION"
     helm install suse/uaa $UAA_HELM_VERSION --name susecf-uaa --namespace uaa --values $AKSDEPLOYID/scf-config-values.yaml
+    log-environment-helm
 }
 
 upgrade-cap-uaa(){
+    log-action "Upgrading UAA  $UAA_HELM_VERSION"
     helm upgrade susecf-uaa suse/uaa $UAA_HELM_VERSION --force --recreate-pods --values $AKSDEPLOYID/scf-config-values.yaml
+    log-environment-helm
 }
 
 deploy-cap-scf(){
+    	log-action "Installing SCF  $SCF_HELM_VERSION"
+ 
         SECRET=$(kubectl get pods --namespace uaa -o jsonpath='{.items[?(.metadata.name=="uaa-0")].spec.containers[?(.name=="uaa")].env[?(.name=="INTERNAL_CA_CERT")].valueFrom.secretKeyRef.name}');
         CA_CERT="$(kubectl get secret $SECRET --namespace uaa -o jsonpath="{.data['internal-ca-cert']}" | base64 --decode -)";
         echo "CA_CERT=$CA_CERT";
         helm install suse/cf $SCF_HELM_VERSION --name susecf-scf --namespace scf --values $AKSDEPLOYID/scf-config-values.yaml --set "secrets.UAA_CA_CERT=${CA_CERT}"
+	log-environment-helm
 }
 upgrade-cap-scf(){
+        log-action "Upgrading SCF  $SCF_HELM_VERSION"
         # Options example "--force --grace-period=0"
         local OPTIONS=$1
         SECRET=$(kubectl get pods --namespace uaa -o jsonpath='{.items[?(.metadata.name=="uaa-0")].spec.containers[?(.name=="uaa")].env[?(.name=="INTERNAL_CA_CERT")].valueFrom.secretKeyRef.name}');
         CA_CERT="$(kubectl get secret $SECRET --namespace uaa -o jsonpath="{.data['internal-ca-cert']}" | base64 --decode -)";
         echo "CA_CERT=$CA_CERT";
         helm upgrade susecf-scf suse/cf $SCF_HELM_VERSION --namespace scf $OPTIONS  --values $AKSDEPLOYID/scf-config-values.yaml --set "secrets.UAA_CA_CERT=${CA_CERT}"
+        log-environment-helm
 }
 deploy-cap-stratos(){
+        log-action "Installing STRATOS  $CONSOLE_HELM_VERSION"
 	local OPTIONS=""
-	if [ ! "$REGION" == "jmlzone" ];then
+	if [ ! "$REGION" == "yourzone" ];then
 	    OPTIONS=" --set services.loadbalanced=true "
         fi
         helm install suse/console $CONSOLE_HELM_VERSION --name susecf-console --namespace stratos --values $AKSDEPLOYID/scf-config-values.yaml $OPTIONS  --set metrics.enabled=true
+        log-environment-helm
 }
 deploy-cap-metrics(){
+        log-action "Installing METRICS  $METRICS_HELM_VERSION"
+
 	local OPTIONS=""
-        if [ "$REGION" == "jmlzone" ];then
+        if [ "$REGION" == "yourzone" ];then
             OPTIONS=" --values $AKSDEPLOYID/stratos-metrics-values.yaml "
         fi
 
         helm install suse/metrics --name susecf-metrics --namespace=metrics --values $AKSDEPLOYID/scf-config-values.yaml $OPTIONS
+        log-environment-helm
 }
 
 deploy-azure-catalog(){
+        log-action "Installing Azure Catalog"
         helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com ;
         helm repo update;
         helm install svc-cat/catalog --name catalog --namespace catalog --set apiserver.storage.etcd.persistence.enabled=true \
         --set apiserver.healthcheck.enabled=false --set controllerManager.healthcheck.enabled=false --set apiserver.verbosity=2 \
         --set controllerManager.verbosity=2
+        log-environment-helm
 }
 create-azure-servicebroker(){
+
         export SUBSCRIPTION_ID=$(az account show | jq -r '.id')
         export REGION="$REGION"
         export SBRGNAME=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 8)-service-broker
         az group create --name ${SBRGNAME} --location ${REGION}
         echo SBRGNAME=${SBRGNAME}
         export SERVICE_PRINCIPAL_INFO="$(az ad sp create-for-rbac --name ${SBRGNAME})"
-        echo "export SBRGNAME=$SBRGNAME" >>$AKSDEPLOYID/.envvar.sh
-        echo "export REGION=$REGION" >>$AKSDEPLOYID/.envvar.sh
-        echo "export SERVICE_PRINCIPAL_INFO='$SERVICE_PRINCIPAL_INFO'" >>$AKSDEPLOYID/.envvar.sh
+        save-envvar "export SBRGNAME=$SBRGNAME" 
+        save-envvar "export REGION=$REGION" 
+        save-envvar "export SERVICE_PRINCIPAL_INFO='$SERVICE_PRINCIPAL_INFO'"
+        log-action "SB ResourceGroup Created $SBRGNAME"
 }
 delete-azure-servicebroker(){
-	if [ ! "$REGION" == "jmlzone" ]; then
+	if [ ! "$REGION" == "yourzone" ]; then
         	az group delete --name $1 
+        log-action "SB ResourceGroup Deleted $1"
 	fi
 }
 deploy-azure-osba(){
+        log-action "Installing Azure OSBA"
         helm repo add azure https://kubernetescharts.blob.core.windows.net/azure;
         helm repo update;
         TENANT_ID=$(echo ${SERVICE_PRINCIPAL_INFO} | jq -r '.tenant')
@@ -173,11 +219,16 @@ deploy-azure-osba(){
         --set basicAuth.username=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 16) \
         --set basicAuth.password=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 16) \
         --set tls.enabled=false
+        log-environment-helm
 }
 deploy-minibroker(){
+        log-action "Installing Minibroker"
         helm install suse/minibroker --namespace minibroker --name minibroker --set "defaultNamespace=minibroker"
+        log-environment-helm
 }
 cf-create-minibroker-sb(){
+        log-action "Creating CF SB for minibroker & declaring services"
+
  	cf create-service-broker minibroker user pass http://minibroker-minibroker.minibroker.svc.cluster.local
 	cf enable-service-access redis
 	cf enable-service-access mongodb
@@ -199,32 +250,43 @@ cf-set-api(){
         cf api --skip-ssl-validation $CFEP
         ADMINPSW=$(awk '/CLUSTER_ADMIN_PASSWORD:/{print $NF}' $AKSDEPLOYID/scf-config-values.yaml)
         cf login -u admin -p $ADMINPSW
+        log-action "CF Login to $CFEP"
 }
+
 cf-create-azure-sb(){
+        log-action "Creating CF SB for Azure & declaring services"
         cf create-service-broker azure${REGION} $(kubectl get deployment osba-open-service-broker-azure \
         --namespace osba -o jsonpath='{.spec.template.spec.containers[0].env[?(@.name == "BASIC_AUTH_USERNAME")].value}') $(kubectl get secret --namespace osba osba-open-service-broker-azure -o jsonpath='{.data.basic-auth-password}' | base64 -d) http://osba-open-service-broker-azure.osba
         cf service-access -b azure${REGION} | awk '($2 ~ /basic/)||($1 ~ /mongo/) { system("cf enable-service-access " $1 " -p " $2 " -b " brok)}/^broker:/{brok=$2}'
 }
 cf-create-org-space(){
+        log-action "Creating CF Orgs & Spaces & target"
+ 
         cf create-org testorg;
         cf create-space scftest -o testorg;
         cf target -o "testorg" -s "scftest";
 }
 cf-create-service-mysql-ex1-az(){
+        log-action "Creating scf-rails-example-db mysql service in Azure"
         cf create-service azure-mysql-5-7 basic scf-rails-example-db -c "{ \"location\": \"${REGION}\", \"resourceGroup\": \"${SBRGNAME}\", \"firewallRules\": [{\"name\": \"AllowAll\", \"startIPAddress\":\"0.0.0.0\",\"endIPAddress\":\"255.255.255.255\"}]}";
 }
 cf-create-service-mysql-ex1-mb(){
+        log-action "Creating scf-rails-example-db mysql service in Minibroker"
+ 
 	cf create-service mysql 5-7-14  scf-rails-example-db   -c '{"mysqlDatabase":"todos"}'
 }
 cf-create-service-mongodb-ex2-az(){
-	cf create-service azure-cosmosdb-mongo-account account scf-mongo-db -c "{ \"location\": \"${REGION}\", \"resourceGroup\": \"${SBRGNAME}\"}"
+        log-action "Creating scf-mongo-db mongodb service in Azure"
+ 	cf create-service azure-cosmosdb-mongo-account account scf-mongo-db -c "{ \"location\": \"${REGION}\", \"resourceGroup\": \"${SBRGNAME}\"}"
 }
 
 cf-create-service-mongodb-ex2-mb(){
+        log-action "Creating scf-mongo-db mongodb service in Minibroker"
         cf create-service mongodb 4-0-8 scf-mongo-db 
 }
 cf-wait-service-created(){
-                ## $1 Param : service Name expected
+        log-action "Waiting for service $1 creation"
+                 ## $1 Param : service Name expected
         echo "Wait for SCF 1st Service to be ready"
         PODSTATUS=$(cf service $1|awk "/^status:/{print \$NF}");
         while [ $PODSTATUS != "succeeded" ]; do
@@ -232,11 +294,15 @@ cf-wait-service-created(){
                 PODSTATUS=$(cf service $1|awk "/^status:/{print \$NF}");
                 echo "Status $PODSTATUS for db service";
         done
+        log-action "Service $1 Successfully created"
+ 
 }
 azure-disable-ssl-mysql(){
         az mysql server list --resource-group $SBRGNAME|jq '.[] |select(.sslEnforcement=="Enabled")' |awk '/name.*-/{print "az mysql server update --resource-group $SBRGNAME --name " substr($2,2,length($2)-3) " --ssl-enforcement Disabled"}'|sh
+        log-action "Mysql SSL disabled in Azure instances"
 }
 cf-deploy-rails-ex1(){
+        log-action "Deploying application scf-rails-example"
         echo "Clone the rails application to consume the mySQL db"
         if [ ! -d "$AKSDEPLOYID/rails-example" ]; then
         # Control will enter here if $DIRECTORY doesn't exist.
@@ -256,9 +322,11 @@ cf-deploy-rails-ex1(){
         cf services
         echo "Test the app"
         cf apps|awk '/scf-rails-example/{print "curl " $NF }'|sh
+	log-action "Application scf-rails-example deployed"$'\n'"$(cf apps)"
 }
 cf-deploy-nodejs-ex1(){
-        echo "Clone the nodejs application to consume mongodb db"
+        log-action "Deploying application node-backbone-mongo"
+         echo "Clone the nodejs application to consume mongodb db"
 
         if [ ! -d "$AKSDEPLOYID/nodejs-example" ]; then
         	# Control will enter here if $DIRECTORY doesn't exist.
@@ -274,10 +342,14 @@ cf-deploy-nodejs-ex1(){
         cf services
         echo "Test the app"
         cf apps|awk '/node-backbone-mongo/{print "curl " $NF }'|sh
+        log-action "Application node-backbone-mongo deployed"$'\n'"$(cf apps)"
+
 }
 helm-delete-and-ns(){
+        log-action "Deletion of $1 Helm deployment & $2 Namespace"
         helm delete --purge $1
-		kubectl delete ns $2
+	kubectl delete ns $2
+	log-environment
 }
 
 
@@ -288,14 +360,29 @@ select_cap-version
 
 PS3='Please enter your choice: '
 set -e
+ if [[ -z "${SUBSCRIPTION_ID}" ]]; then
+          # not azure deployment
 options=("Quit" "Review scfConfig" "Deploy UAA" "Pods UAA" \
- "Deploy SCF" "Pods SCF" "Deploy AZ CATALOG" "Pods AZ CATALOG" \
-"Create AZ SB" "Deploy AZ OSBA" "Pods AZ OSBA" "Deploy Minibroker SB" "CF API set" \
+"Deploy SCF" "Pods SCF" \
+"Deploy Minibroker SB" "CF API set" \
+"CF CreateOrgSpace" "CF 1st mysql Service" \
+"CF Wait for 1st Service Created" "Deploy 1st Rails Appl" \
+"Deploy Stratos SCF Console" "Pods Stratos" "Deploy Metrics" "Pods Metrics" \
+"CF 1st mongoDB Service" "CF Wait for mongoDB Service" "Deploy 2nd App Nodejs" \
+"All localk8S" "DELETE CAP"  "Upgrade Version")
+
+ else
+	# AZURE set of actions
+options=("Quit" "Review scfConfig" "Deploy UAA" "Pods UAA" \
+"Deploy SCF" "Pods SCF" "Deploy AZ CATALOG" "Pods AZ CATALOG" \
+"Create AZ SB" "Deploy AZ OSBA" "Pods AZ OSBA" "CF API set" \
 "CF Add AZ SB" "CF CreateOrgSpace" "CF 1st mysql Service" \
 "CF Wait for 1st Service Created" "AZ Disable SSL Mysql DBs" "Deploy 1st Rails Appl" \
 "Deploy Stratos SCF Console" "Pods Stratos" "Deploy Metrics" "Pods Metrics" \
 "CF 1st mongoDB Service" "CF Wait for mongoDB Service" "Deploy 2nd App Nodejs" \
-"All Azure" "All localk8S" "DELETE CAP"  "Upgrade Version")
+"All Azure" "DELETE CAP"  "Upgrade Version")
+ fi
+
 select opt in "${options[@]}"
 do
     case $opt in
@@ -369,7 +456,7 @@ do
             cf-create-org-space
             ;;
         "CF 1st mysql Service")
-        if [ ! "$REGION" == "jmlzone" ]; then
+        if [ ! "$REGION" == "yourzone" ]; then
             cf-create-service-mysql-ex1-az
         else
             cf-create-service-mysql-ex1-mb
@@ -397,7 +484,7 @@ do
             watch-pods-of-ns metrics
             ;;
         "CF 1st mongoDB Service")
-	 if [ ! "$REGION" == "jmlzone" ]; then
+	 if [ ! "$REGION" == "yourzone" ]; then
             cf-create-service-mongodb-ex2-az
         else
             cf-create-service-mongodb-ex2-mb
