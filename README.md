@@ -112,6 +112,8 @@ If you want to deploy manually, step by step, you may select actions, the contex
 Logging of your actions : history
 ---
 Each task launched is tracked in an historyfile : 
+
+> You may also have a shorter history : ./simple-history.sh
 ```
 2019-08-09_08h47: Launch CAPnMore : Current selected version 1.4.1
 2019-08-09_08h47: vvvvvv Current environment :
