@@ -113,7 +113,6 @@ Logging of your actions : history
 ---
 Each task launched is tracked in an historyfile : 
 
-> You may also have a shorter history : ./simple-history.sh
 ```
 2019-08-09_08h47: Launch CAPnMore : Current selected version 1.4.1
 2019-08-09_08h47: vvvvvv Current environment :
@@ -142,7 +141,43 @@ stratos       Active   15h
 uaa           Active   21h
 2019-08-09_08h47: ^^^^^^ Current environment
 ```    
-    
+> You may also have a shorter history : ./simple-history.sh
+```
+2019-08-09_09h51: Launch CAPnMore : Current selected version
+2019-08-09_09h51: CAP version  defined
+2019-08-09_09h51: Installing UAA   --version 2.17.1
+2019-08-09_09h51: Wait for pods readiness for uaa
+2019-08-09_09h55: All pods ready for uaa
+2019-08-09_09h55: Installing SCF   --version 2.17.1
+2019-08-09_09h55: Wait for pods readiness for scf
+2019-08-09_10h05: All pods ready for scf
+2019-08-09_10h05: CF Login to https://api.cf.cap2jmlzone.com
+2019-08-09_10h05: Creating CF Orgs & Spaces & target
+2019-08-09_10h05: Installing Minibroker
+2019-08-09_10h05: Wait for pods readiness for minibroker
+2019-08-09_10h05: All pods ready for minibroker
+2019-08-09_10h05: Creating CF SB for minibroker & declaring services
+2019-08-09_10h06: Creating scf-rails-example-db mysql service in Minibroker
+2019-08-09_10h06: Waiting for service scf-rails-example-db creation
+2019-08-09_10h06: Service scf-rails-example-db Successfully created
+2019-08-09_10h06: Deploying application scf-rails-example
+2019-08-09_10h07: Application scf-rails-example deployed
+2019-08-09_10h07: Installing STRATOS   --version 2.4.0
+2019-08-09_10h07: Wait for pods readiness for stratos
+2019-08-09_10h08: All pods ready for stratos
+2019-08-09_10h08: Installing METRICS
+2019-08-09_10h08: Wait for pods readiness for metrics
+2019-08-09_10h13: All pods ready for metrics
+2019-08-09_10h13: Creating scf-mongo-db mongodb service in Minibroker
+2019-08-09_10h13: Waiting for service scf-mongo-db creation
+2019-08-09_10h13: Service scf-mongo-db Successfully created
+2019-08-09_10h13: Deploying application node-backbone-mongo
+2019-08-09_10h13: Application node-backbone-mongo deployed
+```
+
+
+
+
 To Do :
 ----
 - Deploy NFS Provisionner (needed to provide PVs in the local K8S)
