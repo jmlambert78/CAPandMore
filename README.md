@@ -1,5 +1,20 @@
 # CAPnMore : SCF deployment automation
 
+Introduction
+---
+The main script **capnmore.sh** is launched to deploy CAP SCF on a kubernetes cluster deployed before.
+To deploy, ensure that you **access a K8S cluster & prepare a PV provisionner (NFS or other)**
+
+>If you are in AKS, you will need to provide more elements (revision to come) (Subscription etc)
+>NB: If you deployed with the https://github.com/jmlambert78/deploy-cap-aks-cluster mechanism, this deployment is compatible and will >reuse envvars defined in the previous process (deploy AKS) (and especially the deploy-cap-aks-cluster/init_aks_env.sh )
+
+**CAPnMore** allows you to manage **multiple deployments in several K8S clusters**, and stores specific deployment files in a subdir as below.
+You will have one **initxxxx.sh per deployment directory** to help you switch between clusters
+ex: You create a **CAP12345** subdir & an **init12345.sh** with the AKSDEPLOYID containing the path to that CAP12345 dir.
+    You create a **CAP98765** subdir & an **init98765.sh** with the AKSDEPLOYID containing the path to that CAP98765 dir.
+You will **source init12345.sh or init98765.sh** to setup your deployment environment prior to launch the **capnmore.sh** script
+
+
 Prerequisites:
 ---
 - HELM client
@@ -7,14 +22,6 @@ Prerequisites:
 - kubectl client
 - Wildcard DNS entry for your CAP urls like (cf.capjmlzone.com)
 
-Introduction
----
-The main script is launched to deploy CAP SCF on a kubernetes cluster deployed before.
-To deploy, ensure that you access a K8S cluster & prepare a PV provisionner (NFS or other)
-
-If you are in AKS, you will need to provide more elements (revision to come) (Subscription etc)
-
-NB: If you deployed with the https://github.com/jmlambert78/deploy-cap-aks-cluster mechanism, this deployment is compatible and will reuse envvars defined in the previous process (deploy AKS) (and especially the deploy-cap-aks-cluster/init_aks_env.sh )
 
 Create/modify a new initxxxx.sh file (if you have not the above init_aks_env.sh for AKS)
 ------------------------------
@@ -30,11 +37,17 @@ cf api --skip-ssl-validation $CFEP      # this will just try to connect to the C
 ```
 Source this initxxxx.sh file to get the variables ready
 -------------------------------------------------------
-source initxxxx.sh
+**source initxxxx.sh**
+NB: Use source to have the ENVVARs setup at your shell level and be able to use the kubectl/cf in your shell
 
-Create the working directory if not existing
+Create the Deployment directory if not existing
 -------------------------------------------
 mkdir $AKSDEPLOYID
+
+Populate the Deployment directory with templates files
+-------------------------------------------
+Copy the **Templates** directoy into your own choosen $AKSDEPLOYID diretory
+Add the **kubeconfig** file with your kubernetes config file content 
 
 Edit your SCF deployment helm chart values (scf, stratos...)
 -----------
