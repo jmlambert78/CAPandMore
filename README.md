@@ -6,12 +6,16 @@ The main script **capnmore.sh** is launched to deploy CAP SCF on a kubernetes cl
 To deploy, ensure that you **access a K8S cluster & prepare a PV provisionner (NFS or other)**
 
 >If you are in AKS, you will need to provide more elements (revision to come) (Subscription etc)
->NB: If you deployed with the https://github.com/jmlambert78/deploy-cap-aks-cluster mechanism, this deployment is compatible and will >reuse envvars defined in the previous process (deploy AKS) (and especially the deploy-cap-aks-cluster/init_aks_env.sh )
+
+>NB: If you deployed with the https://github.com/jmlambert78/deploy-cap-aks-cluster mechanism, this deployment is compatible and will reuse envvars defined in the previous process (deploy AKS) (and especially the deploy-cap-aks-cluster/init_aks_env.sh )
 
 **CAPnMore** allows you to manage **multiple deployments in several K8S clusters**, and stores specific deployment files in a subdir as below.
+
 You will have one **initxxxx.sh per deployment directory** to help you switch between clusters
+
 ex: You create a **CAP12345** subdir & an **init12345.sh** with the AKSDEPLOYID containing the path to that CAP12345 dir.
     You create a **CAP98765** subdir & an **init98765.sh** with the AKSDEPLOYID containing the path to that CAP98765 dir.
+
 You will **source init12345.sh or init98765.sh** to setup your deployment environment prior to launch the **capnmore.sh** script
 
 
