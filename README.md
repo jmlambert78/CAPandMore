@@ -16,7 +16,7 @@ You will have one **initxxxx.sh per deployment directory** to help you switch be
 ex: You create a **CAP12345** subdir & an **init12345.sh** with the AKSDEPLOYID containing the path to that CAP12345 dir.
     You create a **CAP98765** subdir & an **init98765.sh** with the AKSDEPLOYID containing the path to that CAP98765 dir.
 
-You will **source init12345.sh or init98765.sh** to setup your deployment environment prior to launch the **capnmore.sh** script
+You will **source init12345.sh or init98765.sh** to select your deployment environment prior to launch the **capnmore.sh** script
 
 
 Prerequisites:
