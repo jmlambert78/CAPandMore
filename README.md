@@ -202,7 +202,7 @@ To Do :
 - Install HELM if not done in your cluster (rbac + tiller)
 - Integrate the CAP Backup/Restore options
 - Integrate the SCALING options for SCF/UAA
-- ~~Integrate the log of all actions in a file 
-- ~~Reorg the labels (too many ;-)
+- ~~Integrate the log of all actions in a file ~~
+- ~~Reorg the labels (too many ;-)~~
 
 
