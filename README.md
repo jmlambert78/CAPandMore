@@ -1,19 +1,31 @@
 # CAPnMore : SCF deployment automation
 
+Introduction
+---
+The main script **capnmore.sh** is launched to deploy CAP SCF on a kubernetes cluster deployed before.
+To deploy, ensure that you **access a K8S cluster & prepare a PV provisionner (NFS or other)**
+
+>If you are in AKS, you will need to provide more elements (revision to come) (Subscription etc)
+
+>NB: If you deployed with the https://github.com/jmlambert78/deploy-cap-aks-cluster mechanism, this deployment is compatible and will reuse envvars defined in the previous process (deploy AKS) (and especially the deploy-cap-aks-cluster/init_aks_env.sh )
+
+**CAPnMore** allows you to manage **multiple deployments in several K8S clusters**, and stores specific deployment files in a subdir as below.
+
+You will have one **initxxxx.sh per deployment directory** to help you switch between clusters
+
+ex: You create a **CAP12345** subdir & an **init12345.sh** with the AKSDEPLOYID containing the path to that CAP12345 dir.
+    You create a **CAP98765** subdir & an **init98765.sh** with the AKSDEPLOYID containing the path to that CAP98765 dir.
+
+You will **source init12345.sh or init98765.sh** to select your deployment environment prior to launch the **capnmore.sh** script
+
+
 Prerequisites:
 ---
 - HELM client
 - CF client
 - kubectl client
+- Wildcard DNS entry for your CAP urls like (cf.capjmlzone.com)
 
-Introduction
----
-The main script is launched to deploy CAP SCF on a kubernetes cluster deployed before.
-To deploy, ensure that you access a K8S cluster & prepare a PV provisionner (NFS or other)
-
-If you are in AKS, you will need to provide more elements (revision to come) (Subscription etc)
-
-NB: If you deployed with the https://github.com/jmlambert78/deploy-cap-aks-cluster mechanism, this deployment is compatible and will reuse envvars defined in the previous process (deploy AKS) (and especially the deploy-cap-aks-cluster/init_aks_env.sh )
 
 Create/modify a new initxxxx.sh file (if you have not the above init_aks_env.sh for AKS)
 ------------------------------
@@ -29,11 +41,17 @@ cf api --skip-ssl-validation $CFEP      # this will just try to connect to the C
 ```
 Source this initxxxx.sh file to get the variables ready
 -------------------------------------------------------
-source initxxxx.sh
+**source initxxxx.sh**
+NB: Use source to have the ENVVARs setup at your shell level and be able to use the kubectl/cf in your shell
 
-Create the working directory if not existing
+Create the Deployment directory if not existing
 -------------------------------------------
 mkdir $AKSDEPLOYID
+
+Populate the Deployment directory with templates files
+-------------------------------------------
+Copy the **Templates** directoy into your own choosen $AKSDEPLOYID diretory
+Add the **kubeconfig** file with your kubernetes config file content 
 
 Edit your SCF deployment helm chart values (scf, stratos...)
 -----------
@@ -112,6 +130,7 @@ If you want to deploy manually, step by step, you may select actions, the contex
 Logging of your actions : history
 ---
 Each task launched is tracked in an historyfile : 
+
 ```
 2019-08-09_08h47: Launch CAPnMore : Current selected version 1.4.1
 2019-08-09_08h47: vvvvvv Current environment :
@@ -140,14 +159,50 @@ stratos       Active   15h
 uaa           Active   21h
 2019-08-09_08h47: ^^^^^^ Current environment
 ```    
-    
+> You may also have a shorter history : ./simple-history.sh
+```
+2019-08-09_09h51: Launch CAPnMore : Current selected version
+2019-08-09_09h51: CAP version  defined
+2019-08-09_09h51: Installing UAA   --version 2.17.1
+2019-08-09_09h51: Wait for pods readiness for uaa
+2019-08-09_09h55: All pods ready for uaa
+2019-08-09_09h55: Installing SCF   --version 2.17.1
+2019-08-09_09h55: Wait for pods readiness for scf
+2019-08-09_10h05: All pods ready for scf
+2019-08-09_10h05: CF Login to https://api.cf.cap2jmlzone.com
+2019-08-09_10h05: Creating CF Orgs & Spaces & target
+2019-08-09_10h05: Installing Minibroker
+2019-08-09_10h05: Wait for pods readiness for minibroker
+2019-08-09_10h05: All pods ready for minibroker
+2019-08-09_10h05: Creating CF SB for minibroker & declaring services
+2019-08-09_10h06: Creating scf-rails-example-db mysql service in Minibroker
+2019-08-09_10h06: Waiting for service scf-rails-example-db creation
+2019-08-09_10h06: Service scf-rails-example-db Successfully created
+2019-08-09_10h06: Deploying application scf-rails-example
+2019-08-09_10h07: Application scf-rails-example deployed
+2019-08-09_10h07: Installing STRATOS   --version 2.4.0
+2019-08-09_10h07: Wait for pods readiness for stratos
+2019-08-09_10h08: All pods ready for stratos
+2019-08-09_10h08: Installing METRICS
+2019-08-09_10h08: Wait for pods readiness for metrics
+2019-08-09_10h13: All pods ready for metrics
+2019-08-09_10h13: Creating scf-mongo-db mongodb service in Minibroker
+2019-08-09_10h13: Waiting for service scf-mongo-db creation
+2019-08-09_10h13: Service scf-mongo-db Successfully created
+2019-08-09_10h13: Deploying application node-backbone-mongo
+2019-08-09_10h13: Application node-backbone-mongo deployed
+```
+
+
+
+
 To Do :
 ----
 - Deploy NFS Provisionner (needed to provide PVs in the local K8S)
 - Install HELM if not done in your cluster (rbac + tiller)
 - Integrate the CAP Backup/Restore options
 - Integrate the SCALING options for SCF/UAA
-- ~~Integrate the log of all actions in a file 
-- ~~Reorg the labels (too many ;-)
+- ~~Integrate the log of all actions in a file~~
+- ~~Reorg the labels (too many ;-)~~
 
 
