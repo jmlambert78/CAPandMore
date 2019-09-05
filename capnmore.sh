@@ -255,10 +255,10 @@ echo "CFEP $CFEP"
 }
 
 cf-create-azure-sb(){
-        log-action "Creating CF SB for Azure & declaring services"
+	log-action "Creating CF SB for Azure & declaring services"
         cf create-service-broker azure${REGION} $(kubectl get deployment osba-open-service-broker-azure \
         --namespace osba -o jsonpath='{.spec.template.spec.containers[0].env[?(@.name == "BASIC_AUTH_USERNAME")].value}') $(kubectl get secret --namespace osba osba-open-service-broker-azure -o jsonpath='{.data.basic-auth-password}' | base64 -d) http://osba-open-service-broker-azure.osba
-        cf service-access -b azure${REGION} | awk '($2 ~ /basic/)||($1 ~ /mongo/) { system("cf enable-service-access " $1 " -p " $2 " -b " brok)}/^broker:/{brok=$2}'
+  	cf service-access -b azure${REGION} | awk '($2 ~ /basic/)||($1 ~ /mongo/) { system("cf enable-service-access " $1 " -p " $2 " -b " brok)}/^broker/{brok=$NF}/^courtier/{brok=$NF}'
 }
 cf-create-org-space(){
         log-action "Creating CF Orgs & Spaces & target"
@@ -307,7 +307,7 @@ cf-deploy-rails-ex1(){
         echo "Clone the rails application to consume the mySQL db"
         if [ ! -d "$AKSDEPLOYID/rails-example" ]; then
         # Control will enter here if $DIRECTORY doesn't exist.
-                git clone https://github.com/jmlambert78/rails-example $AKSDEPLOYID/rails-example
+        git clone https://github.com/jmlambert78/rails-example $AKSDEPLOYID/rails-example
         fi
         cd $AKSDEPLOYID/rails-example
         echo "Push the application to SCF"
