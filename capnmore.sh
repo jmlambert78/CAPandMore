@@ -66,8 +66,15 @@ get-chart-versions(){
                            export UAA_HELM_VERSION=" --version 2.17.1 "
                            export SCF_HELM_VERSION=" --version 2.17.1 "
                            export CONSOLE_HELM_VERSION=" --version 2.4.0 "
-			   export NEXT_UPGRADE_PATH="1.4.2"
+			   export NEXT_UPGRADE_PATH="1.5.0"
                            ;;
+                       "1.5.0")
+                           export UAA_HELM_VERSION=" --version 2.18.0-rc4 "
+                           export SCF_HELM_VERSION=" --version 2.18.0-rc4 "
+                           export CONSOLE_HELM_VERSION=" --version 2.4.0 "
+                           export NEXT_UPGRADE_PATH="1.5.1"
+                           ;;
+
 	 	        *)echo "Undefined version";;
                 esac
 		save-envvar "export CAP_VERSION=\"$1\"" ;
@@ -81,8 +88,7 @@ log-action "CAP version $CAP_VERSION defined"
 select_cap-version(){
         if [[ -z "${CAP_VERSION}" ]]; then
         PS3='Please enter your choice: '
-        set -e
-        capversions=("1.3.0" "1.3.1" "1.4.0" "1.4.1")
+        capversions=("1.3.0" "1.3.1" "1.4.0" "1.4.1" "1.5.0")
         select ver in "${capversions[@]}"
         do
 	   get-chart-versions $ver
@@ -238,9 +244,17 @@ cf-create-minibroker-sb(){
 	cf create-security-group redis_networking  $AKSDEPLOYID/redis.json
 	cf create-security-group mongo_networking  $AKSDEPLOYID/mongo.json
 	cf create-security-group mysql_networking  $AKSDEPLOYID/mysql.json
+# for network in 10.x
+	cf create-security-group redis10_networking  $AKSDEPLOYID/redis10.json
+        cf create-security-group mongo10_networking  $AKSDEPLOYID/mongo10.json
+        cf create-security-group mysql10_networking  $AKSDEPLOYID/mysql10.json
+
 	cf bind-security-group redis_networking testorg scftest
 	cf bind-security-group mongo_networking testorg scftest
 	cf bind-security-group mysql_networking testorg scftest
+        cf bind-security-group redis10_networking testorg scftest
+        cf bind-security-group mongo10_networking testorg scftest
+        cf bind-security-group mysql10_networking testorg scftest
 }
 cf-set-api(){
 echo "CFEP $CFEP"
@@ -360,7 +374,6 @@ init-cap-deployment
 select_cap-version
 
 PS3='Please enter your choice: '
-set -e
  if [[ -z "${SUBSCRIPTION_ID}" ]]; then
           # not azure deployment
 options=("Quit" "Review scfConfig" "Deploy UAA" "Pods UAA" \
