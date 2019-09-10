@@ -362,8 +362,8 @@ cf-deploy-nodejs-ex1(){
 }
 helm-delete-and-ns(){
         log-action "Deletion of $1 Helm deployment & $2 Namespace"
-        helm delete --purge $1
-	kubectl delete ns $2
+	kubectl delete ns $2 --grace-period=0 --force
+	helm delete --purge $1
 	log-environment
 }
 
