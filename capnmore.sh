@@ -69,9 +69,9 @@ get-chart-versions(){
 			   export NEXT_UPGRADE_PATH="1.5.0"
                            ;;
                        "1.5.0")
-                           export UAA_HELM_VERSION=" --version 2.18.0-rc4 "
-                           export SCF_HELM_VERSION=" --version 2.18.0-rc4 "
-                           export CONSOLE_HELM_VERSION=" --version 2.4.0 "
+                           export UAA_HELM_VERSION=" --version 2.18.0 "
+                           export SCF_HELM_VERSION=" --version 2.18.0 "
+                           export CONSOLE_HELM_VERSION=" --version 2.5.1 "
                            export NEXT_UPGRADE_PATH="1.5.1"
                            ;;
 
@@ -119,10 +119,10 @@ log-action "All pods ready for $1"
 }
 install-helm(){
         kubectl apply -f $AKSDEPLOYID/helm-rbac-config.yaml
-        watch kubectl get pod -n kube-system|grep tiller
-        helm init --service-account=tiller
+	helm init --service-account=tiller
+        wait-for-pods-ready-of-ns kube-system	
 }
-deploy-nfs-provionner-local(){
+deploy-nfs-provisioner-local(){
         helm install --name nfs-provisioner stable/nfs-client-provisioner -f $AKSDEPLOYID/nfs-client-provisioner-values.yaml --namespace=kube-system
         log-environment-helm
 }
@@ -376,7 +376,7 @@ select_cap-version
 PS3='Please enter your choice: '
  if [[ -z "${SUBSCRIPTION_ID}" ]]; then
           # not azure deployment
-options=("Quit" "Review scfConfig" "Deploy UAA" "Pods UAA" \
+options=("Quit" "Review scfConfig" "**Prep New Cluster**" "Deploy UAA" "Pods UAA" \
 "Deploy SCF" "Pods SCF" \
 "Deploy Minibroker SB" "CF API set" \
 "CF CreateOrgSpace" "CF 1st mysql Service" \
@@ -406,6 +406,10 @@ do
         "Review scfConfig")
             review-cap-config-file
             ;;
+	"**Prep New Cluster**")
+	    install-helm
+	    deploy-nfs-provisioner-local
+    	    ;;
 	"Upgrade Version")
 	    oldPS3="$PS3"
 	    
