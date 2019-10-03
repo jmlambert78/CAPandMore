@@ -48,30 +48,35 @@ get-chart-versions(){
                            export UAA_HELM_VERSION=" --version 2.14.5 "
                            export SCF_HELM_VERSION=" --version 2.14.5 "
                            export CONSOLE_HELM_VERSION=" --version 2.2.0 "
+			   export METRICS_HELM_VERSION=" --version 1.1.0 "
                            export NEXT_UPGRADE_PATH="1.3.1"
                            ;;
                         "1.3.1")
                            export UAA_HELM_VERSION=" --version 2.15.2 "
                            export SCF_HELM_VERSION=" --version 2.15.2 "
                            export CONSOLE_HELM_VERSION=" --version 2.3.0 "
-                           export NEXT_UPGRADE_PATH="1.4.0"
+			   export METRICS_HELM_VERSION=" --version 1.1.0 "
+			   export NEXT_UPGRADE_PATH="1.4.0"
                            ;;
                         "1.4.0")
                            export UAA_HELM_VERSION=" --version 2.16.4 "
                            export SCF_HELM_VERSION=" --version 2.16.4 "
                            export CONSOLE_HELM_VERSION=" --version 2.4.0 "
+			   export METRICS_HELM_VERSION=" --version 1.1.0 "
                            export NEXT_UPGRADE_PATH="1.4.1"
                            ;;
                    	"1.4.1")
                            export UAA_HELM_VERSION=" --version 2.17.1 "
                            export SCF_HELM_VERSION=" --version 2.17.1 "
                            export CONSOLE_HELM_VERSION=" --version 2.4.0 "
+			   export METRICS_HELM_VERSION=" --version 1.1.0 "
 			   export NEXT_UPGRADE_PATH="1.5.0"
                            ;;
                        "1.5.0")
                            export UAA_HELM_VERSION=" --version 2.18.0 "
                            export SCF_HELM_VERSION=" --version 2.18.0 "
-                           export CONSOLE_HELM_VERSION=" --version 2.5.1 "
+                           export CONSOLE_HELM_VERSION=" --version 2.5.2 "
+			   export METRICS_HELM_VERSION=" --version 1.1.0 "
                            export NEXT_UPGRADE_PATH="1.5.1"
                            ;;
 
@@ -81,6 +86,7 @@ get-chart-versions(){
         	save-envvar "export UAA_HELM_VERSION=\"$UAA_HELM_VERSION\"";
         save-envvar "export SCF_HELM_VERSION=\"$SCF_HELM_VERSION\"";
         save-envvar "export CONSOLE_HELM_VERSION=\"$CONSOLE_HELM_VERSION\"";
+	save-envvar "export METRICS_HELM_VERSION=\"$METRICS_HELM_VERSION\"";
         save-envvar "export NEXT_UPGRADE_PATH=\"$NEXT_UPGRADE_PATH\"";
  echo ">>> Installing CAP version $CAP_VERSION <<<"
 log-action "CAP version $CAP_VERSION defined"
@@ -179,7 +185,7 @@ deploy-cap-metrics(){
             OPTIONS=" --values $AKSDEPLOYID/stratos-metrics-values.yaml "
         fi
 
-        helm install suse/metrics --name susecf-metrics --namespace=metrics --values $AKSDEPLOYID/scf-config-values.yaml $OPTIONS
+        helm install suse/metrics $METRICS_HELM_VERSION --name susecf-metrics --namespace=metrics --values $AKSDEPLOYID/scf-config-values.yaml $OPTIONS
         log-environment-helm
 }
 
