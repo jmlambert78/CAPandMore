@@ -100,6 +100,11 @@ select_cap-version(){
 review-cap-config-file(){
         vim $AKSDEPLOYID/scf-config-values.yaml
 }
+review-metrics-config-file(){
+        vim $AKSDEPLOYID/stratos-metrics-values.yaml
+}
+
+
 watch-pods-of-ns(){
         watch kubectl get pods -n "$1"
 	log-action "Watch pods for $1"
@@ -376,7 +381,7 @@ select_cap-version
 PS3='Please enter your choice: '
  if [[ -z "${SUBSCRIPTION_ID}" ]]; then
           # not azure deployment
-options=("Quit" "Review scfConfig" "**Prep New Cluster**" "Deploy UAA" "Pods UAA" \
+options=("Quit" "Review scfConfig" "Review metricsConfig" "**Prep New Cluster**" "Deploy UAA" "Pods UAA" \
 "Deploy SCF" "Pods SCF" \
 "Deploy Minibroker SB" "CF API set" \
 "CF CreateOrgSpace" "CF 1st mysql Service" \
@@ -387,7 +392,7 @@ options=("Quit" "Review scfConfig" "**Prep New Cluster**" "Deploy UAA" "Pods UAA
 
  else
 	# AZURE set of actions
-options=("Quit" "Review scfConfig" "Deploy UAA" "Pods UAA" \
+options=("Quit" "Review scfConfig" "Review metricsConfig" "**Prep New Cluster**" "Deploy UAA" "Pods UAA" \
 "Deploy SCF" "Pods SCF" "Deploy AZ CATALOG" "Pods AZ CATALOG" \
 "Create AZ SB" "Deploy AZ OSBA" "Pods AZ OSBA" "CF API set" \
 "CF Add AZ SB" "CF CreateOrgSpace" "CF 1st mysql Service" \
@@ -406,6 +411,10 @@ do
         "Review scfConfig")
             review-cap-config-file
             ;;
+	"Review metricsConfig")
+            review-metrics-config-file
+            ;;
+
 	"**Prep New Cluster**")
 	    install-helm
 	    deploy-nfs-provisioner-local
