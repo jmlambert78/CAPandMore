@@ -4,17 +4,17 @@
 #### 07 AUG 2019
 #### FUNCTIONS used by the script
 save-envvar(){
-	echo "$1" >> $AKSDEPLOYID/.envvar.sh
+        echo "$1" >> $AKSDEPLOYID/.envvar.sh
 }
 log-action(){
 local ts=`date +'%Y-%m-%d_%Hh%M'`
         echo "$ts: $1" >> $AKSDEPLOYID/history_actions.log
 }
 log-environment(){
-	log-action "vvvvvv Current environment : "
-	log-action "PWD: $(pwd)"$'\n'">>> kubectl get nodes <<<"$'\n'"$(kubectl get nodes)"$'\n'\
+        log-action "vvvvvv Current environment : "
+        log-action "PWD: $(pwd)"$'\n'">>> kubectl get nodes <<<"$'\n'"$(kubectl get nodes)"$'\n'\
 ">>> helm list <<<"$'\n'"$(helm list)"$'\n'">>> kubectl get ns <<<"$'\n'"$(kubectl get ns)"
-	log-action "^^^^^^ Current environment"
+        log-action "^^^^^^ Current environment"
 }
 log-environment-helm(){
         log-action "vvvvvv Current environment : "
@@ -30,17 +30,17 @@ init-cap-deployment(){
         else
           [ -f  "$AKSDEPLOYID/.envvar.sh" ]; source $AKSDEPLOYID/.envvar.sh;
         fi
-	if [ ! "$REGION" == "yourzone" ]; then 
-        	export SUBSCRIPTION_ID=$(az account show | jq -r '.id')
-        	save-envvar "export SUBSCRIPTION_ID=$SUBSCRIPTION_ID"
+        if [ ! "$REGION" == "yourzone" ]; then
+                export SUBSCRIPTION_ID=$(az account show | jq -r '.id')
+                save-envvar "export SUBSCRIPTION_ID=$SUBSCRIPTION_ID"
         fi
-	export KUBECONFIG="$AKSDEPLOYID/kubeconfig"
+        export KUBECONFIG="$AKSDEPLOYID/kubeconfig"
         save-envvar "export KUBECONFIG=$KUBECONFIG"
-	echo ">>>>>> Welcome to the CAPnMORE deployment tool <<<<<<<"
-	kubectl get nodes
-	echo " Current selected version : $CAP_VERSION"
-	log-action "Launch CAPnMore : Current selected version $CAP_VERSION"
-	log-environment
+        echo ">>>>>> Welcome to the CAPnMORE deployment tool <<<<<<<"
+        kubectl get nodes
+        echo " Current selected version : $CAP_VERSION"
+        log-action "Launch CAPnMore : Current selected version $CAP_VERSION"
+        log-environment
 }
 get-chart-versions(){
                 case $1 in
@@ -48,45 +48,45 @@ get-chart-versions(){
                            export UAA_HELM_VERSION=" --version 2.14.5 "
                            export SCF_HELM_VERSION=" --version 2.14.5 "
                            export CONSOLE_HELM_VERSION=" --version 2.2.0 "
-			   export METRICS_HELM_VERSION=" --version 1.0.0 "
+                           export METRICS_HELM_VERSION=" --version 1.0.0 "
                            export NEXT_UPGRADE_PATH="1.3.1"
                            ;;
                         "1.3.1")
                            export UAA_HELM_VERSION=" --version 2.15.2 "
                            export SCF_HELM_VERSION=" --version 2.15.2 "
                            export CONSOLE_HELM_VERSION=" --version 2.3.0 "
-			   export METRICS_HELM_VERSION=" --version 1.0.0 "
-			   export NEXT_UPGRADE_PATH="1.4.0"
+                           export METRICS_HELM_VERSION=" --version 1.0.0 "
+                           export NEXT_UPGRADE_PATH="1.4.0"
                            ;;
                         "1.4.0")
                            export UAA_HELM_VERSION=" --version 2.16.4 "
                            export SCF_HELM_VERSION=" --version 2.16.4 "
                            export CONSOLE_HELM_VERSION=" --version 2.4.0 "
-			   export METRICS_HELM_VERSION=" --version 1.0.0 "
+                           export METRICS_HELM_VERSION=" --version 1.0.0 "
                            export NEXT_UPGRADE_PATH="1.4.1"
                            ;;
-                   	"1.4.1")
+                        "1.4.1")
                            export UAA_HELM_VERSION=" --version 2.17.1 "
                            export SCF_HELM_VERSION=" --version 2.17.1 "
                            export CONSOLE_HELM_VERSION=" --version 2.4.0 "
-			   export METRICS_HELM_VERSION=" --version 1.1.0 "
-			   export NEXT_UPGRADE_PATH="1.5.0"
+                           export METRICS_HELM_VERSION=" --version 1.1.0 "
+                           export NEXT_UPGRADE_PATH="1.5.0"
                            ;;
                        "1.5.0")
                            export UAA_HELM_VERSION=" --version 2.18.0 "
                            export SCF_HELM_VERSION=" --version 2.18.0 "
                            export CONSOLE_HELM_VERSION=" --version 2.5.2 "
-			   export METRICS_HELM_VERSION=" --version 1.1.0 "
+                           export METRICS_HELM_VERSION=" --version 1.1.0 "
                            export NEXT_UPGRADE_PATH="1.5.1"
                            ;;
 
-	 	        *)echo "Undefined version";;
+                        *)echo "Undefined version";;
                 esac
-		save-envvar "export CAP_VERSION=\"$1\"" ;
-        	save-envvar "export UAA_HELM_VERSION=\"$UAA_HELM_VERSION\"";
+                save-envvar "export CAP_VERSION=\"$1\"" ;
+                save-envvar "export UAA_HELM_VERSION=\"$UAA_HELM_VERSION\"";
         save-envvar "export SCF_HELM_VERSION=\"$SCF_HELM_VERSION\"";
         save-envvar "export CONSOLE_HELM_VERSION=\"$CONSOLE_HELM_VERSION\"";
-	save-envvar "export METRICS_HELM_VERSION=\"$METRICS_HELM_VERSION\"";
+        save-envvar "export METRICS_HELM_VERSION=\"$METRICS_HELM_VERSION\"";
         save-envvar "export NEXT_UPGRADE_PATH=\"$NEXT_UPGRADE_PATH\"";
  echo ">>> Installing CAP version $CAP_VERSION <<<"
 log-action "CAP version $CAP_VERSION defined"
@@ -97,7 +97,7 @@ select_cap-version(){
         capversions=("1.3.0" "1.3.1" "1.4.0" "1.4.1" "1.5.0")
         select ver in "${capversions[@]}"
         do
-	   get-chart-versions $ver
+           get-chart-versions $ver
            break
         done
         fi
@@ -113,7 +113,7 @@ review-metrics-config-file(){
 
 watch-pods-of-ns(){
         watch kubectl get pods -n "$1"
-	log-action "Watch pods for $1"
+        log-action "Watch pods for $1"
 }
 
 wait-for-pods-ready-of-ns(){
@@ -126,12 +126,12 @@ log-action "Wait for pods readiness for $1"
           echo "Til $PODSTATUS pods to wait for in $NS";
         done
 log-action "All pods ready for $1"
- 
+
 }
 install-helm(){
         kubectl apply -f $AKSDEPLOYID/helm-rbac-config.yaml
-	helm init --service-account=tiller
-        wait-for-pods-ready-of-ns kube-system	
+        helm init --service-account=tiller
+        wait-for-pods-ready-of-ns kube-system
 }
 deploy-nfs-provisioner-local(){
         helm install --name nfs-provisioner stable/nfs-client-provisioner -f $AKSDEPLOYID/nfs-client-provisioner-values.yaml --namespace=kube-system
@@ -150,13 +150,13 @@ upgrade-cap-uaa(){
 }
 
 deploy-cap-scf(){
-    	log-action "Installing SCF  $SCF_HELM_VERSION"
- 
+        log-action "Installing SCF  $SCF_HELM_VERSION"
+
         SECRET=$(kubectl get pods --namespace uaa -o jsonpath='{.items[?(.metadata.name=="uaa-0")].spec.containers[?(.name=="uaa")].env[?(.name=="INTERNAL_CA_CERT")].valueFrom.secretKeyRef.name}');
         CA_CERT="$(kubectl get secret $SECRET --namespace uaa -o jsonpath="{.data['internal-ca-cert']}" | base64 --decode -)";
         echo "CA_CERT=$CA_CERT";
         helm install suse/cf $SCF_HELM_VERSION --name susecf-scf --namespace scf --values $AKSDEPLOYID/scf-config-values.yaml --set "secrets.UAA_CA_CERT=${CA_CERT}"
-	log-environment-helm
+        log-environment-helm
 }
 upgrade-cap-scf(){
         log-action "Upgrading SCF  $SCF_HELM_VERSION"
@@ -170,9 +170,9 @@ upgrade-cap-scf(){
 }
 deploy-cap-stratos(){
         log-action "Installing STRATOS  $CONSOLE_HELM_VERSION"
-	local OPTIONS=""
-	if [ ! "$REGION" == "yourzone" ];then
-	    OPTIONS=" --set services.loadbalanced=true "
+        local OPTIONS=""
+        if [ ! "$REGION" == "yourzone" ];then
+            OPTIONS=" --set services.loadbalanced=true "
         fi
         helm install suse/console $CONSOLE_HELM_VERSION --name susecf-console --namespace stratos --values $AKSDEPLOYID/scf-config-values.yaml $OPTIONS  --set metrics.enabled=true
         log-environment-helm
@@ -180,7 +180,7 @@ deploy-cap-stratos(){
 deploy-cap-metrics(){
         log-action "Installing METRICS  $METRICS_HELM_VERSION"
 
-	local OPTIONS=""
+        local OPTIONS=""
         if [ "$REGION" == "yourzone" ];then
             OPTIONS=" --values $AKSDEPLOYID/stratos-metrics-values.yaml "
         fi
@@ -206,16 +206,16 @@ create-azure-servicebroker(){
         az group create --name ${SBRGNAME} --location ${REGION}
         echo SBRGNAME=${SBRGNAME}
         export SERVICE_PRINCIPAL_INFO="$(az ad sp create-for-rbac --name ${SBRGNAME})"
-        save-envvar "export SBRGNAME=$SBRGNAME" 
-        save-envvar "export REGION=$REGION" 
+        save-envvar "export SBRGNAME=$SBRGNAME"
+        save-envvar "export REGION=$REGION"
         save-envvar "export SERVICE_PRINCIPAL_INFO='$SERVICE_PRINCIPAL_INFO'"
         log-action "SB ResourceGroup Created $SBRGNAME"
 }
 delete-azure-servicebroker(){
-	if [ ! "$REGION" == "yourzone" ]; then
-        	az group delete --name $1 
+        if [ ! "$REGION" == "yourzone" ]; then
+                az group delete --name $1
         log-action "SB ResourceGroup Deleted $1"
-	fi
+        fi
 }
 deploy-azure-osba(){
         log-action "Installing Azure OSBA"
@@ -246,31 +246,31 @@ deploy-minibroker(){
 cf-create-minibroker-sb(){
         log-action "Creating CF SB for minibroker & declaring services"
 
- 	cf create-service-broker minibroker user pass http://minibroker-minibroker.minibroker.svc.cluster.local
-	cf enable-service-access redis
-	cf enable-service-access mongodb
-	cf enable-service-access mariadb
-	cf enable-service-access postgresql
-	cf enable-service-access mysql
-	cf create-security-group redis_networking  $AKSDEPLOYID/redis.json
-	cf create-security-group mongo_networking  $AKSDEPLOYID/mongo.json
-	cf create-security-group mysql_networking  $AKSDEPLOYID/mysql.json
+        cf create-service-broker minibroker user pass http://minibroker-minibroker.minibroker.svc.cluster.local
+        cf enable-service-access redis
+        cf enable-service-access mongodb
+        cf enable-service-access mariadb
+        cf enable-service-access postgresql
+        cf enable-service-access mysql
+        cf create-security-group redis_networking  $AKSDEPLOYID/redis.json
+        cf create-security-group mongo_networking  $AKSDEPLOYID/mongo.json
+        cf create-security-group mysql_networking  $AKSDEPLOYID/mysql.json
 # for network in 10.x
-	cf create-security-group redis10_networking  $AKSDEPLOYID/redis10.json
+        cf create-security-group redis10_networking  $AKSDEPLOYID/redis10.json
         cf create-security-group mongo10_networking  $AKSDEPLOYID/mongo10.json
         cf create-security-group mysql10_networking  $AKSDEPLOYID/mysql10.json
 
-	cf bind-security-group redis_networking testorg scftest
-	cf bind-security-group mongo_networking testorg scftest
-	cf bind-security-group mysql_networking testorg scftest
+        cf bind-security-group redis_networking testorg scftest
+        cf bind-security-group mongo_networking testorg scftest
+        cf bind-security-group mysql_networking testorg scftest
         cf bind-security-group redis10_networking testorg scftest
         cf bind-security-group mongo10_networking testorg scftest
         cf bind-security-group mysql10_networking testorg scftest
 }
 cf-set-api(){
 echo "CFEP $CFEP"
-	if [ -z "$CFEP" ]; then
-	  CFEP=$(awk '/Public IP:/{print "https://api." $NF ".xip.io"}' $AKSDEPLOYID/deployment.log)
+        if [ -z "$CFEP" ]; then
+          CFEP=$(awk '/Public IP:/{print "https://api." $NF ".xip.io"}' $AKSDEPLOYID/deployment.log)
         fi
         echo "CF Endpoint : $CFEP"
         cf api --skip-ssl-validation $CFEP
@@ -280,14 +280,14 @@ echo "CFEP $CFEP"
 }
 
 cf-create-azure-sb(){
-	log-action "Creating CF SB for Azure & declaring services"
+        log-action "Creating CF SB for Azure & declaring services"
         cf create-service-broker azure${REGION} $(kubectl get deployment osba-open-service-broker-azure \
         --namespace osba -o jsonpath='{.spec.template.spec.containers[0].env[?(@.name == "BASIC_AUTH_USERNAME")].value}') $(kubectl get secret --namespace osba osba-open-service-broker-azure -o jsonpath='{.data.basic-auth-password}' | base64 -d) http://osba-open-service-broker-azure.osba
-  	cf service-access -b azure${REGION} | awk '($2 ~ /basic/)||($1 ~ /mongo/) { system("cf enable-service-access " $1 " -p " $2 " -b " brok)}/^broker/{brok=$NF}/^courtier/{brok=$NF}'
+        cf service-access -b azure${REGION} | awk '($2 ~ /basic/)||($1 ~ /mongo/) { system("cf enable-service-access " $1 " -p " $2 " -b " brok)}/^broker/{brok=$NF}/^courtier/{brok=$NF}'
 }
 cf-create-org-space(){
         log-action "Creating CF Orgs & Spaces & target"
- 
+
         cf create-org testorg;
         cf create-space scftest -o testorg;
         cf target -o "testorg" -s "scftest";
@@ -298,17 +298,17 @@ cf-create-service-mysql-ex1-az(){
 }
 cf-create-service-mysql-ex1-mb(){
         log-action "Creating scf-rails-example-db mysql service in Minibroker"
- 
-	cf create-service mysql 5-7-14  scf-rails-example-db   -c '{"mysqlDatabase":"todos"}'
+
+        cf create-service mysql 5-7-14  scf-rails-example-db   -c '{"mysqlDatabase":"todos"}'
 }
 cf-create-service-mongodb-ex2-az(){
         log-action "Creating scf-mongo-db mongodb service in Azure"
- 	cf create-service azure-cosmosdb-mongo-account account scf-mongo-db -c "{ \"location\": \"${REGION}\", \"resourceGroup\": \"${SBRGNAME}\"}"
+        cf create-service azure-cosmosdb-mongo-account account scf-mongo-db -c "{ \"location\": \"${REGION}\", \"resourceGroup\": \"${SBRGNAME}\"}"
 }
 
 cf-create-service-mongodb-ex2-mb(){
         log-action "Creating scf-mongo-db mongodb service in Minibroker"
-        cf create-service mongodb 4-0-8 scf-mongo-db 
+        cf create-service mongodb 4-0-8 scf-mongo-db
 }
 cf-wait-service-created(){
         log-action "Waiting for service $1 creation"
@@ -321,7 +321,7 @@ cf-wait-service-created(){
                 echo "Status $PODSTATUS for db service";
         done
         log-action "Service $1 Successfully created"
- 
+
 }
 azure-disable-ssl-mysql(){
         az mysql server list --resource-group $SBRGNAME|jq '.[] |select(.sslEnforcement=="Enabled")' |awk '/name.*-/{print "az mysql server update --resource-group $SBRGNAME --name " substr($2,2,length($2)-3) " --ssl-enforcement Disabled"}'|sh
@@ -336,7 +336,7 @@ cf-deploy-rails-ex1(){
         fi
         cd $AKSDEPLOYID/rails-example
         echo "Push the application to SCF"
-	cf push #-c 'rake db:seed' -i 1
+        cf push #-c 'rake db:seed' -i 1
         #cf push
         #cf push -c 'rake db:seed' -i 1
         echo "Populate the DB with sample data"
@@ -348,20 +348,20 @@ cf-deploy-rails-ex1(){
         cf services
         echo "Test the app"
         cf apps|awk '/scf-rails-example/{print "curl " $NF }'|sh
-	log-action "Application scf-rails-example deployed"$'\n'"$(cf apps)"
+        log-action "Application scf-rails-example deployed"$'\n'"$(cf apps)"
 }
 cf-deploy-nodejs-ex1(){
         log-action "Deploying application node-backbone-mongo"
          echo "Clone the nodejs application to consume mongodb db"
 
         if [ ! -d "$AKSDEPLOYID/nodejs-example" ]; then
-        	# Control will enter here if $DIRECTORY doesn't exist.
-        	git clone https://github.com/jmlambert78/node-backbone-mongo $AKSDEPLOYID/nodejs-example
-	fi
+                # Control will enter here if $DIRECTORY doesn't exist.
+                git clone https://github.com/jmlambert78/node-backbone-mongo $AKSDEPLOYID/nodejs-example
+        fi
         cd $AKSDEPLOYID/nodejs-example
         echo "Push the application to SCF"
-        cf push 
-	#cf bs node-backbone-mongo scf-mongo-db
+        cf push
+        #cf bs node-backbone-mongo scf-mongo-db
         #cf restage node-backbone-mongo -v
         cd ../..
         cf apps
@@ -372,12 +372,115 @@ cf-deploy-nodejs-ex1(){
 
 }
 helm-delete-and-ns(){
-        log-action "Deletion of $1 Helm deployment & $2 Namespace"
-	kubectl delete ns $2 --grace-period=0 --force
-	helm delete --purge $1
-	log-environment
+    log-action "Deletion of $1 Helm deployment & $2 Namespace"
+        kubectl delete ns $2 --grace-period=0 --force
+        helm delete --purge $1
+        log-environment
 }
+backup-cap(){
+        newbackupid=CAP-BCK-`date +'%Y-%m-%d_%Hh%M'`
+        export BCKLOC="$AKSDEPLOYID/backups/$newbackupid"
+        log-action "Backup CAP in $BCKLOC started"
+        if [ ! -d "$BCKLOC" ]; then
+      mkdir -p $BCKLOC
+    fi;
+    log-action "Backup CAP in $BCKLOC Kubeconfig & CF API"
+    kubectl config view --flatten >$BCKLOC/kubeconfig.yaml
+    cf api >$BCKLOC/cfapi.log
+        log-action "Backup CAP in $BCKLOC Blobstore"
+        kubectl exec --stdin --tty blobstore-0 --namespace scf -- bash -c 'tar cfvz blobstore-src.tgz /var/vcap/store/shared';
+    kubectl cp scf/blobstore-0:blobstore-src.tgz $BCKLOC/blobstore-src.tgz
+        log-action "Backup CAP in $BCKLOC CCDB db content"
+        kubectl exec -t mysql-0 --namespace scf -- bash -c \
+        '/var/vcap/packages/mariadb/bin/mysqldump \
+        --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf \
+        ccdb' > $BCKLOC/ccdb-src.sql
+        log-action "Backup CAP in $BCKLOC DB Encryption Keys"
+        kubectl exec -t api-group-0 --namespace scf -- bash -c 'echo $DB_ENCRYPTION_KEY' >$BCKLOC/enc_key.txt ;
+    kubectl exec -it --namespace scf api-group-0 -- bash -c "cat /var/vcap/jobs/cloud_controller_ng/config/cloud_controller_ng.yml | grep -A 3 database_encryption" >>$BCKLOC/enc_key.txt
+        log-action "Backup CAP in $BCKLOC Done"
+        ls $BCKLOC -al
+        save-envvar "export LAST_CAP_BACKUP=\"$BCKLOC\"" ;
+}
+list-backups(){
+        echo "Last Backup : $LAST_CAP_BACKUP"
+        echo "List of available Backups for this deployment"
+        ls $AKSDEPLOYID/backups/ -al
+}
+select-backup-to-restore(){
+	echo "List of available Backups for this deployment"
+	echo "Select the one to restore"
+	unset options i
+	while IFS= read -r -d $'\0' f; do
+	  options[i++]="$f"
+	done < <(find $AKSDEPLOYID/backups/* -maxdepth 1 -type d -print0)
+	select opt in "${options[@]}" "Select Last Backup" ; do
+	  case $opt in
+		*CAP*)
+		  export CAP_RESTORE_LOCATION="$opt"
+		  break
+		  ;;
 
+		"Select Last Backup")
+		  export CAP_RESTORE_LOCATION="$LAST_CAP_BACKUP" 
+		  break
+		  ;;
+		*)
+		  echo "This is not a number"
+		  ;;
+	  esac
+	done
+	log-action "Restore CAP: $CAP_RESTORE_LOCATION Selected"
+}
+launch-restore(){
+        log-action "Restore CAP from  $CAP_RESTORE_LOCATION Started"
+#        "Restore Change Domain Name in sql")
+#             vim $CAP_RESTORE_LOCATION/ccdb-src.sql
+		log-action "Restore CAP : Restore Stop Monit Services"
+		kubectl exec --stdin --tty --namespace scf api-group-0 -- bash -l -c 'monit stop all';
+		kubectl exec --stdin --tty --namespace scf cc-worker-0 -- bash -l -c 'monit stop all';
+		kubectl exec --stdin --tty --namespace scf cc-clock-0 -- bash -l -c 'monit stop all';
+	
+		log-action "Restore CAP : Restore inject blobstore"
+		kubectl cp $CAP_RESTORE_LOCATION/blobstore-src.tgz scf/blobstore-0:. ;
+		kubectl exec -it --namespace scf blobstore-0 -- bash -l -c 'monit stop all && sleep 10 && rm -rf /var/vcap/store/shared/* && tar xvf blobstore-src.tgz && monit start all && rm blobstore-src.tgz'
+	
+		log-action "Restore CAP : Restore CCDB Content"
+		kubectl exec -t mysql-0 --namespace scf -- bash -c \
+					"/var/vcap/packages/mariadb/bin/mysql \
+					--defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf \
+					-e 'drop database ccdb; create database ccdb;'";
+		kubectl exec -i mysql-0 --namespace scf -- bash -c '/var/vcap/packages/mariadb/bin/mysql --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf ccdb' < $CAP_RESTORE_LOCATION/ccdb-src.sql
+	
+		log-action "Restore CAP : Start Monit Services"
+		kubectl exec --stdin --tty --namespace scf api-group-0 -- bash -l -c 'monit start all';
+		kubectl exec --stdin --tty --namespace scf cc-worker-0 -- bash -l -c 'monit start all';
+		kubectl exec --stdin --tty --namespace scf cc-clock-0 -- bash -l -c 'monit start all';
+	
+		log-action "Restore CAP : Restore Change EncKey"
+		kubectl exec -t --namespace scf api-group-0 -- bash -c 'sed -i "/db_encryption_key:/c\\db_encryption_key: \"$(echo $CC_DB_ENCRYPTION_KEYS | jq -r .migrated_key)\"" /var/vcap/jobs/cloud_controller_ng/config/cloud_controller_ng.yml'
+	
+		log-action "Restore CAP : Key Rotation"
+		kubectl exec --namespace scf api-group-0 -- bash -c 'source /var/vcap/jobs/cloud_controller_ng/bin/ruby_version.sh;export CLOUD_CONTROLLER_NG_CONFIG=/var/vcap/jobs/cloud_controller_ng/config/cloud_controller_ng.yml;cd /var/vcap/packages/cloud_controller_ng/cloud_controller_ng;bundle exec rake rotate_cc_database_key:perform'
+	
+		log-action "Restore CAP : Delete the Api-group-0 pod"
+		kubectl -n scf delete pod api-group-0 --force --grace-period=0
+	
+		log-action "Restore CAP from  $CAP_RESTORE_LOCATION Done"
+}
+restore-cap(){
+       
+        select-backup-to-restore
+		echo "Ensure that the new CAP deployment is running properly, with same version & Encryption Keys are set in HELM values"
+		while true; do
+			read -p "Do you confirm the restore from $CAP_RESTORE_LOCATION?" yn
+			case $yn in
+				[Yy]* ) launch-restore; break;;
+				[Nn]* ) break;;
+				* ) echo "Please answer yes or no.";;
+			esac
+		done      
+}
 
 ######## START OF EXEC
 
@@ -394,10 +497,10 @@ options=("Quit" "Review scfConfig" "Review metricsConfig" "**Prep New Cluster**"
 "CF Wait for 1st Service Created" "Deploy 1st Rails Appl" \
 "Deploy Stratos SCF Console" "Pods Stratos" "Deploy Metrics" "Pods Metrics" \
 "CF 1st mongoDB Service" "CF Wait for mongoDB Service" "Deploy 2nd App Nodejs" \
-"All localk8S" "DELETE CAP"  "Upgrade Version")
+"All localk8S" "DELETE CAP"  "Upgrade Version" "Backup CAP" "Restore CAP")
 
  else
-	# AZURE set of actions
+        # AZURE set of actions
 options=("Quit" "Review scfConfig" "Review metricsConfig" "**Prep New Cluster**" "Deploy UAA" "Pods UAA" \
 "Deploy SCF" "Pods SCF" "Deploy AZ CATALOG" "Pods AZ CATALOG" \
 "Create AZ SB" "Deploy AZ OSBA" "Pods AZ OSBA" "CF API set" \
@@ -405,7 +508,7 @@ options=("Quit" "Review scfConfig" "Review metricsConfig" "**Prep New Cluster**"
 "CF Wait for 1st Service Created" "AZ Disable SSL Mysql DBs" "Deploy 1st Rails Appl" \
 "Deploy Stratos SCF Console" "Pods Stratos" "Deploy Metrics" "Pods Metrics" \
 "CF 1st mongoDB Service" "CF Wait for mongoDB Service" "Deploy 2nd App Nodejs" \
-"All Azure" "DELETE CAP"  "Upgrade Version")
+"All Azure" "DELETE CAP"  "Upgrade Version" "Backup CAP" "Restore CAP")
  fi
 
 select opt in "${options[@]}"
@@ -417,36 +520,36 @@ do
         "Review scfConfig")
             review-cap-config-file
             ;;
-	"Review metricsConfig")
+        "Review metricsConfig")
             review-metrics-config-file
             ;;
 
-	"**Prep New Cluster**")
-	    install-helm
-	    deploy-nfs-provisioner-local
-    	    ;;
-	"Upgrade Version")
-	    oldPS3="$PS3"
-	    
-	    PS3="Next Proposed version is $NEXT_UPGRADE_PATH Agree?"
-	    select approved in Yes No
-	    do
-    		case $approved in
-		"Yes")
-			get-chart-versions "$NEXT_UPGRADE_PATH"	
-			upgrade-cap-uaa
-			wait-for-pods-ready-of-ns uaa
+        "**Prep New Cluster**")
+            install-helm
+            deploy-nfs-provisioner-local
+            ;;
+        "Upgrade Version")
+            oldPS3="$PS3"
 
-			upgrade-cap-scf
- 		     	wait-for-pods-ready-of-ns scf
+            PS3="Next Proposed version is $NEXT_UPGRADE_PATH Agree?"
+            select approved in Yes No
+            do
+                case $approved in
+                "Yes")
+                        get-chart-versions "$NEXT_UPGRADE_PATH"
+                        upgrade-cap-uaa
+                        wait-for-pods-ready-of-ns uaa
 
-			break 
-		;;
-		*)break;;
-		esac
-	    done
-	    PS3="$oldPS3"
-	    ;; 
+                        upgrade-cap-scf
+                        wait-for-pods-ready-of-ns scf
+
+                        break
+                ;;
+                *)break;;
+                esac
+            done
+            PS3="$oldPS3"
+            ;;
        "Deploy UAA")
             deploy-cap-uaa
             ;;
@@ -482,8 +585,8 @@ do
             ;;
        "Deploy Minibroker SB")
             deploy-minibroker
-	    wait-for-pods-ready-of-ns minibroker 
-	    cf-create-minibroker-sb
+            wait-for-pods-ready-of-ns minibroker
+            cf-create-minibroker-sb
             ;;
          "CF CreateOrgSpace")
             cf-create-org-space
@@ -493,7 +596,7 @@ do
             cf-create-service-mysql-ex1-az
         else
             cf-create-service-mysql-ex1-mb
-	fi
+        fi
             ;;
         "CF Wait for 1st Service Created")
             cf-wait-service-created scf-rails-example-db
@@ -517,7 +620,7 @@ do
             watch-pods-of-ns metrics
             ;;
         "CF 1st mongoDB Service")
-	 if [ ! "$REGION" == "yourzone" ]; then
+         if [ ! "$REGION" == "yourzone" ]; then
             cf-create-service-mongodb-ex2-az
         else
             cf-create-service-mongodb-ex2-mb
@@ -536,51 +639,51 @@ do
             wait-for-pods-ready-of-ns scf
             deploy-azure-catalog
             wait-for-pods-ready-of-ns catalog
-                        create-azure-servicebroker
-                        deploy-azure-osba
-                        wait-for-pods-ready-of-ns osba
-                        cf-set-api
-                        cf-create-azure-sb
-                        cf-create-org-space
-                        cf-create-service-mysql-ex1-az
-                        cf-wait-service-created scf-rails-example-db
-                        azure-disable-ssl-mysql
-                        cf-deploy-rails-ex1
-                        deploy-cap-stratos
-                        wait-for-pods-ready-of-ns stratos
-                        deploy-cap-metrics
-                        wait-for-pods-ready-of-ns metrics
-                        cf-create-service-mongodb-ex2-az
-                        cf-wait-service-created scf-mongo-db 
-                        cf-deploy-nodejs-ex1
+			create-azure-servicebroker
+			deploy-azure-osba
+			wait-for-pods-ready-of-ns osba
+			cf-set-api
+			cf-create-azure-sb
+			cf-create-org-space
+			cf-create-service-mysql-ex1-az
+			cf-wait-service-created scf-rails-example-db
+			azure-disable-ssl-mysql
+			cf-deploy-rails-ex1
+			deploy-cap-stratos
+			wait-for-pods-ready-of-ns stratos
+			deploy-cap-metrics
+			wait-for-pods-ready-of-ns metrics
+			cf-create-service-mongodb-ex2-az
+			cf-wait-service-created scf-mongo-db
+			cf-deploy-nodejs-ex1
             ;;
-	"All localk8S")
+        "All localk8S")
             deploy-cap-uaa
             wait-for-pods-ready-of-ns uaa
             deploy-cap-scf
             wait-for-pods-ready-of-ns scf
             cf-set-api
             cf-create-org-space
-	    deploy-minibroker
-	    wait-for-pods-ready-of-ns minibroker
-	    cf-create-minibroker-sb
-                        cf-create-service-mysql-ex1-mb
-                        cf-wait-service-created scf-rails-example-db 
-                        cf-deploy-rails-ex1
-                        deploy-cap-stratos
-                        wait-for-pods-ready-of-ns stratos
-                        deploy-cap-metrics
-                        wait-for-pods-ready-of-ns metrics
-                        cf-create-service-mongodb-ex2-mb
-                        cf-wait-service-created scf-mongo-db
-                        cf-deploy-nodejs-ex1
+            deploy-minibroker
+            wait-for-pods-ready-of-ns minibroker
+            cf-create-minibroker-sb
+			cf-create-service-mysql-ex1-mb
+			cf-wait-service-created scf-rails-example-db
+			cf-deploy-rails-ex1
+			deploy-cap-stratos
+			wait-for-pods-ready-of-ns stratos
+			deploy-cap-metrics
+			wait-for-pods-ready-of-ns metrics
+			cf-create-service-mongodb-ex2-mb
+			cf-wait-service-created scf-mongo-db
+			cf-deploy-nodejs-ex1
 
-		;;
+                ;;
         "DELETE CAP")
                 hlist=$(helm list -q)
 
 				if [[ $hlist == *"susecf-scf"* ]]; then
-				helm-delete-and-ns susecf-uaa uaa 
+				helm-delete-and-ns susecf-uaa uaa
 				fi
 				if [[ $hlist == *"susecf-scf"* ]]; then
 				helm-delete-and-ns susecf-scf scf
@@ -602,8 +705,15 @@ do
 				fi
 				delete-azure-servicebroker $SBRGNAME
             ;;
+                "Backup CAP")
+                        backup-cap
+                    ;;
+                "Restore CAP")
+                        restore-cap
+                    ;;
         *) echo "invalid option $REPLY";;
     esac
 done
+
 
 
