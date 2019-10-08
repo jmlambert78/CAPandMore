@@ -155,7 +155,7 @@ deploy-cap-scf(){
         SECRET=$(kubectl get pods --namespace uaa -o jsonpath='{.items[?(.metadata.name=="uaa-0")].spec.containers[?(.name=="uaa")].env[?(.name=="INTERNAL_CA_CERT")].valueFrom.secretKeyRef.name}');
         CA_CERT="$(kubectl get secret $SECRET --namespace uaa -o jsonpath="{.data['internal-ca-cert']}" | base64 --decode -)";
         echo "CA_CERT=$CA_CERT";
-        helm install suse/cf $SCF_HELM_VERSION --name susecf-scf --namespace scf --values $AKSDEPLOYID/scf-config-values.yaml --set "secrets.UAA_CA_CERT=${CA_CERT}"
+        helm install suse/cf $SCF_HELM_VERSION --name susecf-scf --namespace scf --values $AKSDEPLOYID/scf-config-values.yaml --values $AKSDEPLOYID/scf-encryption-key.yaml --set "secrets.UAA_CA_CERT=${CA_CERT}"
         log-environment-helm
 }
 upgrade-cap-scf(){
@@ -165,7 +165,7 @@ upgrade-cap-scf(){
         SECRET=$(kubectl get pods --namespace uaa -o jsonpath='{.items[?(.metadata.name=="uaa-0")].spec.containers[?(.name=="uaa")].env[?(.name=="INTERNAL_CA_CERT")].valueFrom.secretKeyRef.name}');
         CA_CERT="$(kubectl get secret $SECRET --namespace uaa -o jsonpath="{.data['internal-ca-cert']}" | base64 --decode -)";
         echo "CA_CERT=$CA_CERT";
-        helm upgrade susecf-scf suse/cf $SCF_HELM_VERSION --namespace scf $OPTIONS  --values $AKSDEPLOYID/scf-config-values.yaml --set "secrets.UAA_CA_CERT=${CA_CERT}"
+        helm upgrade susecf-scf suse/cf $SCF_HELM_VERSION --namespace scf $OPTIONS  --values $AKSDEPLOYID/scf-config-values.yaml --values $AKSDEPLOYID/scf-encryption-key.yaml --set "secrets.UAA_CA_CERT=${CA_CERT}"
         log-environment-helm
 }
 deploy-cap-stratos(){
@@ -459,14 +459,17 @@ launch-restore(){
 	
 		log-action "Restore CAP : Restore Change EncKey"
 		kubectl exec -t --namespace scf api-group-0 -- bash -c 'sed -i "/db_encryption_key:/c\\db_encryption_key: \"$(echo $CC_DB_ENCRYPTION_KEYS | jq -r .migrated_key)\"" /var/vcap/jobs/cloud_controller_ng/config/cloud_controller_ng.yml'
-	
-		log-action "Restore CAP : Key Rotation"
-		kubectl exec --namespace scf api-group-0 -- bash -c 'source /var/vcap/jobs/cloud_controller_ng/bin/ruby_version.sh;export CLOUD_CONTROLLER_NG_CONFIG=/var/vcap/jobs/cloud_controller_ng/config/cloud_controller_ng.yml;cd /var/vcap/packages/cloud_controller_ng/cloud_controller_ng;bundle exec rake rotate_cc_database_key:perform'
-	
-		log-action "Restore CAP : Delete the Api-group-0 pod"
-		kubectl -n scf delete pod api-group-0 --force --grace-period=0
+		restore-key-rotation
 	
 		log-action "Restore CAP from  $CAP_RESTORE_LOCATION Done"
+}
+restore-key-rotation(){
+	log-action "Restore CAP : Key Rotation"
+        kubectl exec --namespace scf api-group-0 -- bash -c 'source /var/vcap/jobs/cloud_controller_ng/bin/ruby_version.sh;export CLOUD_CONTROLLER_NG_CONFIG=/var/vcap/jobs/cloud_controller_ng/config/cloud_controller_ng.yml;cd /var/vcap/packages/cloud_controller_ng/cloud_controller_ng;bundle exec rake rotate_cc_database_key:perform'
+	log-action "Restore CAP : Delete the Api-group-0 pod"
+        kubectl -n scf delete pod api-group-0 --force --grace-period=0
+
+
 }
 restore-cap(){
        
@@ -508,7 +511,7 @@ options=("Quit" "Review scfConfig" "Review metricsConfig" "**Prep New Cluster**"
 "CF Wait for 1st Service Created" "AZ Disable SSL Mysql DBs" "Deploy 1st Rails Appl" \
 "Deploy Stratos SCF Console" "Pods Stratos" "Deploy Metrics" "Pods Metrics" \
 "CF 1st mongoDB Service" "CF Wait for mongoDB Service" "Deploy 2nd App Nodejs" \
-"All Azure" "DELETE CAP"  "Upgrade Version" "Backup CAP" "Restore CAP")
+"All Azure" "DELETE CAP"  "Upgrade Version" "Backup CAP" "Restore CAP" )
  fi
 
 select opt in "${options[@]}"
@@ -711,6 +714,9 @@ do
                 "Restore CAP")
                         restore-cap
                     ;;
+	        "Restore KeyRotation")
+		    restore-key-rotation
+    		    ;;
         *) echo "invalid option $REPLY";;
     esac
 done
