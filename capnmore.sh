@@ -48,21 +48,21 @@ get-chart-versions(){
                            export UAA_HELM_VERSION=" --version 2.14.5 "
                            export SCF_HELM_VERSION=" --version 2.14.5 "
                            export CONSOLE_HELM_VERSION=" --version 2.2.0 "
-			   export METRICS_HELM_VERSION=" --version 1.1.0 "
+			   export METRICS_HELM_VERSION=" --version 1.0.0 "
                            export NEXT_UPGRADE_PATH="1.3.1"
                            ;;
                         "1.3.1")
                            export UAA_HELM_VERSION=" --version 2.15.2 "
                            export SCF_HELM_VERSION=" --version 2.15.2 "
                            export CONSOLE_HELM_VERSION=" --version 2.3.0 "
-			   export METRICS_HELM_VERSION=" --version 1.1.0 "
+			   export METRICS_HELM_VERSION=" --version 1.0.0 "
 			   export NEXT_UPGRADE_PATH="1.4.0"
                            ;;
                         "1.4.0")
                            export UAA_HELM_VERSION=" --version 2.16.4 "
                            export SCF_HELM_VERSION=" --version 2.16.4 "
                            export CONSOLE_HELM_VERSION=" --version 2.4.0 "
-			   export METRICS_HELM_VERSION=" --version 1.1.0 "
+			   export METRICS_HELM_VERSION=" --version 1.0.0 "
                            export NEXT_UPGRADE_PATH="1.4.1"
                            ;;
                    	"1.4.1")

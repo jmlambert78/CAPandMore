@@ -10,7 +10,7 @@ env:
 #  eirini: true
 kube:
     # The IP address assigned to the kube node pointed to by the domain.
-    external_ips: ["192.168.100.141"] #,"192.168.100.110","192.168.100.111"]
+    external_ips: ["192.168.100.105"] #,"192.168.100.110","192.168.100.111"]
     
     # Run kubectl get storageclasses
     # to view your available storage classes
@@ -26,12 +26,8 @@ kube:
         username: ""
         password: ""
     organization: "cap"
-
-    # Required for CaaSP 
-    auth: "rbac" 
     psp:
-      privileged: "suse.cap.psp"
-      #default: "uaa-psp-default"
+      default: "suse.caasp.psp.privileged"
 
 secrets:
     # Create a password for your CAP cluster
