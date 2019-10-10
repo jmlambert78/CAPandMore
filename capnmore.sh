@@ -174,7 +174,8 @@ deploy-cap-stratos(){
         if [ ! "$REGION" == "yourzone" ];then
             OPTIONS=" --set services.loadbalanced=true "
         fi
-        helm install suse/console $CONSOLE_HELM_VERSION --name susecf-console --namespace stratos --values $AKSDEPLOYID/scf-config-values.yaml $OPTIONS  --set metrics.enabled=true
+	local TECH-PREVIEW-OPTION=" --set console.techPreview=true  "
+        helm install suse/console $CONSOLE_HELM_VERSION --name susecf-console --namespace stratos --values $AKSDEPLOYID/scf-config-values.yaml $OPTIONS  --set metrics.enabled=true $TECH-PREVIEW-OPTION
         log-environment-helm
 }
 deploy-cap-metrics(){
@@ -395,7 +396,14 @@ backup-cap(){
         '/var/vcap/packages/mariadb/bin/mysqldump \
         --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf \
         ccdb' > $BCKLOC/ccdb-src.sql
-        log-action "Backup CAP in $BCKLOC DB Encryption Keys"
+        log-action "Backup CAP in $BCKLOC UAADB db content"
+        kubectl exec -t mysql-0 --namespace uaa -- bash -c \
+        '/var/vcap/packages/mariadb/bin/mysqldump \
+        --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf \
+        uaadb' > $BCKLOC/uaadb-src.sql
+
+
+	log-action "Backup CAP in $BCKLOC DB Encryption Keys"
         kubectl exec -t api-group-0 --namespace scf -- bash -c 'echo $DB_ENCRYPTION_KEY' >$BCKLOC/enc_key.txt ;
     kubectl exec -it --namespace scf api-group-0 -- bash -c "cat /var/vcap/jobs/cloud_controller_ng/config/cloud_controller_ng.yml | grep -A 3 database_encryption" >>$BCKLOC/enc_key.txt
         log-action "Backup CAP in $BCKLOC Done"
@@ -451,7 +459,14 @@ launch-restore(){
 					--defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf \
 					-e 'drop database ccdb; create database ccdb;'";
 		kubectl exec -i mysql-0 --namespace scf -- bash -c '/var/vcap/packages/mariadb/bin/mysql --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf ccdb' < $CAP_RESTORE_LOCATION/ccdb-src.sql
-	
+
+                log-action "Restore CAP : Restore UAADB Content"
+                kubectl exec -t mysql-0 --namespace uaa -- bash -c \
+                                        "/var/vcap/packages/mariadb/bin/mysql \
+                                        --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf \
+                                        -e 'drop database uaadb; create database uaadb;'";
+                kubectl exec -i mysql-0 --namespace uaa -- bash -c '/var/vcap/packages/mariadb/bin/mysql --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf uaadb' < $CAP_RESTORE_LOCATION/uaadb-src.sql
+		
 		log-action "Restore CAP : Start Monit Services"
 		kubectl exec --stdin --tty --namespace scf api-group-0 -- bash -l -c 'monit start all';
 		kubectl exec --stdin --tty --namespace scf cc-worker-0 -- bash -l -c 'monit start all';
