@@ -80,15 +80,16 @@ caasp3n143   Ready    <none>   2d    v1.10.11
 3) 1.4.0
 4) 1.4.1
 Please enter your choice:     <- Select the Version of CAP you want to deploy    
-Current selected version 1.4.1
-    1) Quit                               9) CF CreateOrgSpace                17) CF 1st mongoDB Service
-    2) Review scfConfig                  10) CF 1st mysql Service             18) CF Wait for mongoDB Service
-    3) Deploy UAA                        11) CF Wait for 1st Service Created  19) Deploy 2nd App Nodejs
-    4) Pods UAA                          12) Deploy 1st Rails Appl            20) All localk8S
-    5) Deploy SCF                        13) Deploy Stratos SCF Console       21) DELETE CAP
-    6) Pods SCF                          14) Pods Stratos                     22) Upgrade Version
-    7) Deploy Minibroker SB              15) Deploy Metrics
-    8) CF API set                        16) Pods Metrics
+ Current selected version : 1.4.1
+1) Quit                              10) CF API set                       19) CF 1st mongoDB Service
+2) Review scfConfig                  11) CF CreateOrgSpace                20) CF Wait for mongoDB Service
+3) Review metricsConfig              12) CF 1st mysql Service             21) Deploy 2nd App Nodejs
+4) **Prep New Cluster**              13) CF Wait for 1st Service Created  22) All localk8S
+5) Deploy UAA                        14) Deploy 1st Rails Appl            23) DELETE CAP
+6) Pods UAA                          15) Deploy Stratos SCF Console       24) Upgrade Version
+7) Deploy SCF                        16) Pods Stratos                     25) Backup CAP
+8) Pods SCF                          17) Deploy Metrics                   26) Restore CAP
+9) Deploy Minibroker SB              18) Pods Metrics
 
 Please enter your choice:
 ```
@@ -108,8 +109,8 @@ aks-jmlpool19-14921831-2   Ready    agent   38h   v1.12.8
  6) Pods SCF                         16) CF Wait for 1st Service Created  26) All Azure
  7) Deploy AZ CATALOG                17) AZ Disable SSL Mysql DBs         27) DELETE CAP
  8) Pods AZ CATALOG                  18) Deploy 1st Rails Appl            28) Upgrade Version
- 9) Create AZ SB                     19) Deploy Stratos SCF Console
-10) Deploy AZ OSBA                   20) Pods Stratos
+ 9) Create AZ SB                     19) Deploy Stratos SCF Console       29) Backup CAP
+10) Deploy AZ OSBA                   20) Pods Stratos                     30) Restore CAP
 Please enter your choice:
 ```
 
@@ -198,11 +199,11 @@ uaa           Active   21h
 
 To Do :
 ----
-- Deploy NFS Provisionner (needed to provide PVs in the local K8S)
-- Install HELM if not done in your cluster (rbac + tiller)
-- Integrate the CAP Backup/Restore options
+- ~~Deploy NFS Provisionner (needed to provide PVs in the local K8S)
+- ~~Install HELM if not done in your cluster (rbac + tiller)
+- ~~Integrate the CAP Backup/Restore options
 - Integrate the SCALING options for SCF/UAA
-- ~~Integrate the log of all actions in a file~~
-- ~~Reorg the labels (too many ;-)~~
+- ~~Integrate the log of all actions in a file
+- ~~Reorg the labels (too many ;-)
 
 
