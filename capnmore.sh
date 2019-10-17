@@ -173,8 +173,11 @@ deploy-cap-stratos(){
 	if [ ! "$REGION" == "yourzone" ];then
 		OPTIONS=" --set services.loadbalanced=true "
 	fi
-	local TECH-PREVIEW-OPTION=" --set console.techPreview=true  "
-	helm install suse/console $CONSOLE_HELM_VERSION --name susecf-console --namespace stratos --values $AKSDEPLOYID/scf-config-values.yaml $OPTIONS  --set metrics.enabled=true $TECH-PREVIEW-OPTION
+	local TECH_PREVIEW_OPTION=""
+	if [ "$CONSOLE_HELM_VERSION" == " --version 2.5.2 " ];then
+		TECH_PREVIEW_OPTION="	--set console.techPreview=true  "
+	fi
+	helm install suse/console $CONSOLE_HELM_VERSION --name susecf-console --namespace stratos --values $AKSDEPLOYID/scf-config-values.yaml $OPTIONS  --set metrics.enabled=true $TECH_PREVIEW_OPTION
 	log-environment-helm
 }
 deploy-cap-metrics(){
