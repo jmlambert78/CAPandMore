@@ -75,7 +75,7 @@ get-chart-versions(){
 	   "1.5.0")
 		   export UAA_HELM_VERSION=" --version 2.18.0 "
 		   export SCF_HELM_VERSION=" --version 2.18.0 "
-		   export CONSOLE_HELM_VERSION=" --version 2.5.2 "
+		   export CONSOLE_HELM_VERSION=" --version 2.6.0 "
 		   export METRICS_HELM_VERSION=" --version 1.1.0 "
 		   export NEXT_UPGRADE_PATH="1.5.1"
 		   ;;
@@ -136,6 +136,11 @@ install-helm(){
 deploy-nfs-provisioner-local(){
 	helm install --name nfs-provisioner stable/nfs-client-provisioner -f $AKSDEPLOYID/nfs-client-provisioner-values.yaml --namespace=kube-system
 	log-environment-helm
+}
+deploy-ingress-controller(){
+        helm install --name nginx-ingress suse/nginx-ingress -f $AKSDEPLOYID/nginx-ingress-values.yaml --namespace=ingress
+        log-environment-helm
+	wait-for-pods-ready-of-ns ingress
 }
 deploy-cap-uaa(){
     log-action "Installing UAA  $UAA_HELM_VERSION"
@@ -501,10 +506,10 @@ select_cap-version
 PS3='Please enter your choice: '
 if [[ -z "${SUBSCRIPTION_ID}" ]]; then
     # not azure deployment
-	options=("Quit" "Review scfConfig" "Review metricsConfig" "**Prep New Cluster**" "Deploy UAA" "Pods UAA" \
+	options=("Quit" "Review scfConfig" "Review metricsConfig" "**Deploy ingress-controller" "**Prep New Cluster**" "Deploy UAA" "Pods UAA" \
 	"Deploy SCF" "Pods SCF" \
-	"Deploy Minibroker SB" "CF API set" \
-	"CF CreateOrgSpace" "CF 1st mysql Service" \
+	"CF API set" "CF CreateOrgSpace" \
+       	"Deploy Minibroker SB" "CF 1st mysql Service" \
 	"CF Wait for 1st Service Created" "Deploy 1st Rails Appl" \
 	"Deploy Stratos SCF Console" "Pods Stratos" "Deploy Metrics" "Pods Metrics" \
 	"CF 1st mongoDB Service" "CF Wait for mongoDB Service" "Deploy 2nd App Nodejs" \
@@ -512,7 +517,7 @@ if [[ -z "${SUBSCRIPTION_ID}" ]]; then
 
 else
     # AZURE set of actions
-	options=("Quit" "Review scfConfig" "Review metricsConfig" "**Prep New Cluster**" "Deploy UAA" "Pods UAA" \
+	options=("Quit" "Review scfConfig" "Review metricsConfig" "**Deploy ingress-controller" "**Prep New Cluster**" "Deploy UAA" "Pods UAA" \
 	"Deploy SCF" "Pods SCF" "Deploy AZ CATALOG" "Pods AZ CATALOG" \
 	"Create AZ SB" "Deploy AZ OSBA" "Pods AZ OSBA" "CF API set" \
 	"CF Add AZ SB" "CF CreateOrgSpace" "CF 1st mysql Service" \
@@ -534,7 +539,9 @@ do
         "Review metricsConfig")
             review-metrics-config-file
             ;;
-
+        "**Deploy ingress-controller")
+	    deploy-ingress-controller
+            ;;
         "**Prep New Cluster**")
             install-helm
             deploy-nfs-provisioner-local
