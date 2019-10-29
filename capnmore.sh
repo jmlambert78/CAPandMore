@@ -3,6 +3,7 @@
 #### Jean Marc LAMBERT, SUSE EMEA Consulting
 #### 07 AUG 2019
 #### FUNCTIONS used by the script
+set -x
 save-envvar(){
 	echo "$1" >> $AKSDEPLOYID/.envvar.sh
 }
@@ -45,44 +46,53 @@ init-cap-deployment(){
 get-chart-versions(){
 	case $1 in
 		"1.3.0")
-		   export UAA_HELM_VERSION=" --version 2.14.5 "
-		   export SCF_HELM_VERSION=" --version 2.14.5 "
+		   export UAA_HELM_VERSION=" suse/uaa --version 2.14.5 "
+		   export SCF_HELM_VERSION=" suse/cf --version 2.14.5 "
 		   export CONSOLE_HELM_VERSION=" --version 2.2.0 "
 		   export METRICS_HELM_VERSION=" --version 1.0.0 "
 		   export NEXT_UPGRADE_PATH="1.3.1"
 		   ;;
 		"1.3.1")
-		   export UAA_HELM_VERSION=" --version 2.15.2 "
-		   export SCF_HELM_VERSION=" --version 2.15.2 "
+		   export UAA_HELM_VERSION=" suse/uaa --version 2.15.2 "
+		   export SCF_HELM_VERSION=" suse/cf --version 2.15.2 "
 		   export CONSOLE_HELM_VERSION=" --version 2.3.0 "
 		   export METRICS_HELM_VERSION=" --version 1.0.0 "
 		   export NEXT_UPGRADE_PATH="1.4.0"
 		   ;;
 		"1.4.0")
-		   export UAA_HELM_VERSION=" --version 2.16.4 "
-		   export SCF_HELM_VERSION=" --version 2.16.4 "
-		   export CONSOLE_HELM_VERSION=" --version 2.4.0 "
+		   export UAA_HELM_VERSION=" suse/uaa --version 2.16.4 "
+		   export SCF_HELM_VERSION=" suse/cf --version 2.16.4 "
+		   export CONSOLE_HELM_VERSION=" --version 2.5.3 "
 		   export METRICS_HELM_VERSION=" --version 1.0.0 "
 		   export NEXT_UPGRADE_PATH="1.4.1"
 		   ;;
 		"1.4.1")
-		   export UAA_HELM_VERSION=" --version 2.17.1 "
-		   export SCF_HELM_VERSION=" --version 2.17.1 "
-		   export CONSOLE_HELM_VERSION=" --version 2.4.0 "
+		   export UAA_HELM_VERSION=" suse/uaa --version 2.17.1 "
+		   export SCF_HELM_VERSION=" suse/cf --version 2.17.1 "
+		   export CONSOLE_HELM_VERSION=" --version 2.5.3 "
 		   export METRICS_HELM_VERSION=" --version 1.1.0 "
 		   export NEXT_UPGRADE_PATH="1.5.0"
 		   ;;
 	   "1.5.0")
-		   export UAA_HELM_VERSION=" --version 2.18.0 "
-		   export SCF_HELM_VERSION=" --version 2.18.0 "
+		   export UAA_HELM_VERSION=" suse/uaa --version 2.18.0 "
+		   export SCF_HELM_VERSION=" suse/cf --version 2.18.0 "
 		   export CONSOLE_HELM_VERSION=" --version 2.6.0 "
 		   export METRICS_HELM_VERSION=" --version 1.1.0 "
-		   export NEXT_UPGRADE_PATH="1.5.1"
+		   export NEXT_UPGRADE_PATH="1.5.1RC1"
 		   ;;
+           "1.5.1RC1")
+                   export UAA_HELM_VERSION="NO"
+                   export SCF_HELM_VERSION=" /home/jmlambert/cap151RC1/helm/cf "
+                   export CONSOLE_HELM_VERSION=" --version 2.6.0 "
+                   export METRICS_HELM_VERSION=" --version 1.1.0 "
+                   export NEXT_UPGRADE_PATH="1.5.2"
+                   ;;
+
 
 		*)echo "Undefined version";;
 	esac
-	save-envvar "export CAP_VERSION=\"$1\"" ;
+	export CAP_VERSION="$1"
+	save-envvar "export CAP_VERSION=\"$CAP_VERSION\"" ;
 	save-envvar "export UAA_HELM_VERSION=\"$UAA_HELM_VERSION\"";
 	save-envvar "export SCF_HELM_VERSION=\"$SCF_HELM_VERSION\"";
 	save-envvar "export CONSOLE_HELM_VERSION=\"$CONSOLE_HELM_VERSION\"";
@@ -94,7 +104,7 @@ log-action "CAP version $CAP_VERSION defined"
 select_cap-version(){
 	if [[ -z "${CAP_VERSION}" ]]; then
 	PS3='Please enter your choice: '
-	capversions=("1.3.0" "1.3.1" "1.4.0" "1.4.1" "1.5.0")
+	capversions=("1.3.0" "1.3.1" "1.4.0" "1.4.1" "1.5.0" "1.5.1RC1")
 	select ver in "${capversions[@]}"
 	do
 	   get-chart-versions $ver
@@ -143,25 +153,35 @@ deploy-ingress-controller(){
 	wait-for-pods-ready-of-ns ingress
 }
 deploy-cap-uaa(){
-    log-action "Installing UAA  $UAA_HELM_VERSION"
-    helm install suse/uaa $UAA_HELM_VERSION --name susecf-uaa --namespace uaa --values $AKSDEPLOYID/scf-config-values.yaml
-    log-environment-helm
+    if [ ! "$UAA_HELM_VERSION" == "NO" ];then
+      log-action "Installing UAA  $UAA_HELM_VERSION"
+      helm install $UAA_HELM_VERSION --name susecf-uaa --namespace uaa --values $AKSDEPLOYID/scf-config-values.yaml
+      log-environment-helm
+    fi
 }
 
 upgrade-cap-uaa(){
     log-action "Upgrading UAA  $UAA_HELM_VERSION"
-    helm upgrade susecf-uaa suse/uaa $UAA_HELM_VERSION --force --recreate-pods --values $AKSDEPLOYID/scf-config-values.yaml
+    helm upgrade susecf-uaa $UAA_HELM_VERSION --force --recreate-pods --values $AKSDEPLOYID/scf-config-values.yaml
     log-environment-helm
 }
 
 deploy-cap-scf(){
 	log-action "Installing SCF  $SCF_HELM_VERSION"
+ 
 	SECRET=$(kubectl get pods --namespace uaa -o jsonpath='{.items[?(.metadata.name=="uaa-0")].spec.containers[?(.name=="uaa")].env[?(.name=="INTERNAL_CA_CERT")].valueFrom.secretKeyRef.name}');
 	CA_CERT="$(kubectl get secret $SECRET --namespace uaa -o jsonpath="{.data['internal-ca-cert']}" | base64 --decode -)";
 	echo "CA_CERT=$CA_CERT";
-	helm install suse/cf $SCF_HELM_VERSION --name susecf-scf --namespace scf --values $AKSDEPLOYID/scf-config-values.yaml --values $AKSDEPLOYID/scf-encryption-key.yaml --set "secrets.UAA_CA_CERT=${CA_CERT}"
+	helm install $SCF_HELM_VERSION --name susecf-scf --namespace scf --values $AKSDEPLOYID/scf-config-values.yaml --values $AKSDEPLOYID/scf-encryption-key.yaml --set "secrets.UAA_CA_CERT=${CA_CERT}"
 	log-environment-helm
 }
+deploy-cap-scf-rc1(){
+        log-action "Installing SCF  $SCF_HELM_VERSION 1.5.1 RC1 special"
+        helm install $SCF_HELM_VERSION  --name susecf-scf --namespace scf --values $AKSDEPLOYID/scf-config-values.yaml --set kube.organization="cap-staging"
+        log-environment-helm
+}
+
+
 upgrade-cap-scf(){
 	log-action "Upgrading SCF  $SCF_HELM_VERSION"
 	# Options example "--force --grace-period=0"
@@ -182,7 +202,7 @@ deploy-cap-stratos(){
 	if [ "$CONSOLE_HELM_VERSION" == " --version 2.5.2 " ];then
 		TECH_PREVIEW_OPTION="	--set console.techPreview=true  "
 	fi
-	helm install suse/console $CONSOLE_HELM_VERSION --name susecf-console --namespace stratos --values $AKSDEPLOYID/scf-config-values.yaml $OPTIONS  --set metrics.enabled=true $TECH_PREVIEW_OPTION
+	helm install suse/console $CONSOLE_HELM_VERSION --name susecf-console --namespace stratos --values $AKSDEPLOYID/scf-config-values.yaml $OPTIONS  --set metrics.enabled=true $TECH_PREVIEW_OPTION --set kube.organization="cap"
 	log-environment-helm
 }
 deploy-cap-metrics(){
@@ -193,7 +213,7 @@ deploy-cap-metrics(){
 		OPTIONS=" --values $AKSDEPLOYID/stratos-metrics-values.yaml "
 	fi
 
-	helm install suse/metrics $METRICS_HELM_VERSION --name susecf-metrics --namespace=metrics --values $AKSDEPLOYID/scf-config-values.yaml $OPTIONS
+	helm install suse/metrics $METRICS_HELM_VERSION --name susecf-metrics --namespace=metrics --values $AKSDEPLOYID/scf-config-values.yaml $OPTIONS --set kube.organization="cap"
 	log-environment-helm
 }
 
@@ -676,9 +696,13 @@ do
 			cf-deploy-nodejs-ex1
             ;;
         "All localk8S")
-            deploy-cap-uaa
-            wait-for-pods-ready-of-ns uaa
-            deploy-cap-scf
+            if [ "$CAP_VERSION" == "1.5.1RC1" ];then
+                deploy-cap-scf-rc1
+    	    else
+                deploy-cap-uaa
+                wait-for-pods-ready-of-ns uaa
+    	        deploy-cap-scf
+	    fi
             wait-for-pods-ready-of-ns scf
             cf-set-api
             cf-create-org-space
