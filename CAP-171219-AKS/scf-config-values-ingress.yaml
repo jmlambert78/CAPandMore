@@ -1,0 +1,128 @@
+env:    
+    # Enter the domain you created for your CAP cluster
+    DOMAIN: cf.capjmlzone.com
+    
+    # UAA host and port
+    UAA_HOST: uaa.cf.capjmlzone.com
+    UAA_PORT: 2793
+#    EIRINI_KUBE_HEAPSTER_ADDRESS: "http://heapster.kube-system/apis/metrics/v1alpha1"
+#enable:
+#  eirini: true
+kube:
+    # The IP address assigned to the kube node pointed to by the domain.
+    external_ips: ["192.168.100.141"] #,"192.168.100.110","192.168.100.111"]
+    
+    # Run kubectl get storageclasses
+    # to view your available storage classes
+    storage_class: 
+        persistent: nfs-client
+        shared: nfs-client
+        
+    # The registry the images will be fetched from. 
+    # The values below should work for
+    # a default installation from the SUSE registry.
+    registry: 
+        hostname: "registry.suse.com"
+        username: ""
+        password: ""
+    organization: "cap"
+
+secrets:
+    # Create a password for your CAP cluster
+    CLUSTER_ADMIN_PASSWORD: jmljml.cap
+    
+    # Create a password for your UAA client secret
+    UAA_ADMIN_CLIENT_SECRET: jmljml.cap
+UAA_PORT: 2793
+UAA_PUBLIC_PORT: 2793
+
+ingress:
+  enabled: false
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 1024m
+  tls:
+    crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIFPDCCAyQCCQC88dd2nmWzYTANBgkqhkiG9w0BAQsFADBgMQswCQYDVQQGEwJG
+      UjEWMBQGA1UECAwNSWxlIGRlIEZyYW5jZTEOMAwGA1UEBwwFUGFyaXMxDTALBgNV
+      BAoMBFNVU0UxGjAYBgNVBAMMEUplYW4gTWFyYyBMYW1iZXJ0MB4XDTE5MTAxNzA3
+      MTYxNloXDTIxMTAxNjA3MTYxNlowYDELMAkGA1UEBhMCRlIxFjAUBgNVBAgMDUls
+      ZSBkZSBGcmFuY2UxDjAMBgNVBAcMBVBhcmlzMQ0wCwYDVQQKDARTVVNFMRowGAYD
+      VQQDDBFKZWFuIE1hcmMgTGFtYmVydDCCAiIwDQYJKoZIhvcNAQEBBQADggIPADCC
+      AgoCggIBAMlc/V/DSoYWto516FeaobihYHY1R+G4+ZnSMkaqe3mkfXT5kxF93bWq
+      0izG5sGXiu+4K+hlmuQ2TzDp7cB/p6RG41+EcatIs/hMHZ2cNZTiT9lGTrUj9KRF
+      /Ln4rolE733rH8HiRQyxaQT05BiHExFqtjbYRlEgVR8B06zhKq6zk2ukBzXUAF+J
+      wXXCmFvUZgFt2A5uS5x9uZKOksXlNzqSwpMba1PXtw7D4UUdWiIK7po1267xolyK
+      PIe/frR53Jnv+RXKTiZd3eqdQlejm3b7lYqRoWH5sA34HwFxkoyl2q3f2Fcfon3C
+      DsKd1qWOXI5e9JS+9DFH8Z5Z/+o/10xv3Hf91cFlkmExsxF9GlE5lQZPU6w7a7gJ
+      EOo0FAMSVjWdKpL1w2Pq2RYL5rl+/OkYRfmafCdW4blhLtTAU3loQMViXKIt1NiV
+      kqkpz4Fwz0aSJUiGjqrf9tx839BlywKfJO7F+ppNcbGkM0O1Qb2REKSKSo/L2OW+
+      FVFy2Cf6PTUKAl+mwBZ2otGcFzmOMVjX0sJmrlqAmS9FkrlFyxWZhh1lDKARwB6X
+      qDA6oTeA7rGe7UuZi+a6B2Hh8pNZ6ZdBl+bL0OKIBRvgSnLbpNX3pmm3n3Jfthgl
+      sj5E6OkktJcLFxLPHfpGMYNp8m11U/QST8n2m4tb7L7a0ZJ16TSfAgMBAAEwDQYJ
+      KoZIhvcNAQELBQADggIBAMJ1eQusofXlotdn/FUFcOEe7PdrSPtyCvNJGIIxVM7V
+      FwuIvM5w8kJSOQ2B3sotvmLCRDShzLofJ8xzZLuFgu7x/xGfonMGm1pPgxZ8FmTY
+      5TGqZtbATi0AEZc/L2mVy/efZlw+9jx8oqtgL4c9BURzdHhjjbGmSKCJs9GmBOqF
+      FXVKRNiuDzDPTWvMQh9bDt2HxEJsY4TmReo9E1qvYoZFBuJOLsfdUMha1VJslu6i
+      FcnFijl5Q8hnKrjsc64eGUhrFg4AQiOGK9d/5Vlua8F0qDTZxyoc1MwjQSYu7f8i
+      xVWTTvYeInCJcZ+NnryLgWhkaIRDs1UTjynohR8CMNcL7b+Y8GgxGQnYJ6irkV1O
+      J/f5QD19ZAluImmV6b63vDJ2OTCOqfisZcUnCp4hQ73RHXkCuQUhnIgUevlOUn6J
+      JvCby6KSaU7pxZmvuJZa4U5WhMbMWXq7HhUtys34sNmSyqvp7P/7UdJG2a6c2221
+      dq8tP6qWKnctNto1WQrQ0OPBuakb8EA3/OAPLcSPDxK08WoYgshRzrMfA7Xq1qwf
+      dXBklvNbG0fqV3rx7Dps+CcmU1YsgOlEuLkDLNDroeATMBpE2sJNIicrpNKGt/9U
+      WRiY+bx4jnjhzpKlPnGXtrqo5dLKqg+gAaegHdMLmtg6Lo/QOIrwz7URgxIjs4io
+      -----END CERTIFICATE-----
+    key: |
+      -----BEGIN PRIVATE KEY-----
+      MIIJQwIBADANBgkqhkiG9w0BAQEFAASCCS0wggkpAgEAAoICAQDJXP1fw0qGFraO
+      dehXmqG4oWB2NUfhuPmZ0jJGqnt5pH10+ZMRfd21qtIsxubBl4rvuCvoZZrkNk8w
+      6e3Af6ekRuNfhHGrSLP4TB2dnDWU4k/ZRk61I/SkRfy5+K6JRO996x/B4kUMsWkE
+      9OQYhxMRarY22EZRIFUfAdOs4Squs5NrpAc11ABficF1wphb1GYBbdgObkucfbmS
+      jpLF5Tc6ksKTG2tT17cOw+FFHVoiCu6aNduu8aJcijyHv360edyZ7/kVyk4mXd3q
+      nUJXo5t2+5WKkaFh+bAN+B8BcZKMpdqt39hXH6J9wg7CndaljlyOXvSUvvQxR/Ge
+      Wf/qP9dMb9x3/dXBZZJhMbMRfRpROZUGT1OsO2u4CRDqNBQDElY1nSqS9cNj6tkW
+      C+a5fvzpGEX5mnwnVuG5YS7UwFN5aEDFYlyiLdTYlZKpKc+BcM9GkiVIho6q3/bc
+      fN/QZcsCnyTuxfqaTXGxpDNDtUG9kRCkikqPy9jlvhVRctgn+j01CgJfpsAWdqLR
+      nBc5jjFY19LCZq5agJkvRZK5RcsVmYYdZQygEcAel6gwOqE3gO6xnu1LmYvmugdh
+      4fKTWemXQZfmy9DiiAUb4Epy26TV96Zpt59yX7YYJbI+ROjpJLSXCxcSzx36RjGD
+      afJtdVP0Ek/J9puLW+y+2tGSdek0nwIDAQABAoICABTF9BmyAvksVK8DuPF4sWBj
+      vZjUTFMcCxv0VF137v8QmiS8LpDqZDn+omoeJuYn5Rxv6o+yE7WhaLAKIg3u3XOU
+      IJbVCgj6mh5uc8uzts9iPYyTtUD4sZ9U3QqufgsJQo/B9ufAmREDKGtrfDCPlscA
+      NEYaL77k0AM/4/98xzN4sSe0p03FTjiM9Jladu9aTR+unlB2znQZgFB/RuMFj5oK
+      U+prNLpUkb0DNjU0Hv1OFWlxTvWQVgin9jCm78JcpAZ5fD/kPAW3P1KZ4KM77Kjs
+      sXO3LGf4I1J9m21BszWxUosHgcETMWc54t3u/JrdweyqHR9PR8/htSp57G3VIjfA
+      pfulMRm8Z1TTC/wMLIwZD2cfcRiNIkfu1fbYDfbk/FKlTHW2YCfZvYeoBNrSgqUb
+      ZSLvsN+zr0hvxcvijwnsNguVLM4CnAzqMOJfzZ+LsS+377Hri2NykbNkSHWud4rw
+      BqD7YzmozKMYJSA7cYSHeEJmi8pf/DmWFTDvikFhTOf0DA62Slf3M0COJOIXX3Ce
+      fxiK8/Zs8ptIxsJ2KmmiLE3kyDMJzKfKqw0uFcVrHZMfDLrYWSXNR9Er3sSH8MAJ
+      AlPzl/pVDJbL+b6smAGOm6rKLSgz2qwUtPTz3stDf8xu7q9bMtD0n25MAuR30uIe
+      JdyZcGhGM0rLMkUX0pFBAoIBAQDjC4uEgYRLLps8pD+yuYk538eT6RtOzTxHuL2U
+      PzQjUxq6kwdGt+FimjRZDFpjYX4XM7lSDSfiIKHTmDdSQ3ySHRmxwCwrEn05GdGm
+      uQ8tJQg4qqEan1leedCpzarEB8sw+S0cDePqQoxvqf4H5ESvE+83jhWsVIonMi1e
+      /UnzYe6XLSrhrDvH1/DMMrJmXCGtrys52OPzXVg1xWiaNNKKa8Sw1/wQ9W8TV3bl
+      B2lyKJzr92Kmw65Skwx2lflh7a2IGJsCkWsqi7TJ5rQ7RHuQIaW+9yNGbeObptgf
+      ercJ3Fm4HhCLQQNS+AcQ1irsG+3Xph+CYhyIr7BxX+1+s8BhAoIBAQDjCv8PBBU2
+      hTLg2HsTUePrboH8HjG5lZ7jiirOX6iKjNTGYQ8AzH7Jn2ueAiKMk4TTeTqvgdbh
+      4SiNUIDd6o8/epOs9ieAp8tRC25C6G2YVu09XkLiDzz8KbVhj0BxSbHmSusf3SYC
+      noIOeW4/ABmd6k+qRWWlpbHLadLBYSMIPybCC1xwOMMcU0/tto1HqBTmX3PO36Jd
+      Ls5WpPFebKgiYM8thOG4yRxdPtHnMMnSOqfkOkJEYTlVooLK5Tz8NtSksi/iFuqf
+      b8p/XdngOkGKzLFFtpHG+FBuSeNLRDMAo+nrXyfUr/AxkoHvbJbyM/megvC39pNX
+      U0hmwM659RT/AoIBAQDdpAKR2wGzhw7iNxE7vuWYSr2AxdnzpmTHOzBOjRivt0vr
+      gOZkgdMTN6gMmgOO6rh1m/e4gsFBfUuczQaMVvc/iAryO8CiV41I9cx1LkkDcBhD
+      gUZ+P7q1gMNTUEP41AbmiwkfTuwEXuzLgS5Ms+jc5N/s4taDgY/QTap/BVJwtlR8
+      3gnzffhp0YLvRDpltGDoNY1EDlgQ1jnrXAgOKayylhvP6zjVsVK6lfKqB/9HAyCV
+      Nc3nMDV3xLcw+J0XnTd/GU4RRrZQNUvKoV2mUecxv7cW4hlcgp/j7g8jQ991T9eB
+      5k+OMWw2TYxQQlJqZaVclH5EANUMFj5vnw6wVndhAoIBAQCBG/u2+kdl3ZD1M6Wp
+      cuP9ObZJPJJiSqc0FZoKCXO6diN5PDBf7+oZlcKI9AXZkvnxl/q7W0Zq5LM+yQy/
+      JWeYXYgkz0Xfb4u65pkpCytneecnArdd/fRcIQu4EtI+mf3ES84xLH00+BZVTNBY
+      myH2Hwx2c0g+Tl8woVjsBuT5B5BuwC8s0dqB/Q5yy2DD4t0ftCATADFAdCF6PAnV
+      /EwQYKTv6aTCg/rRO6v5oFDkb96Rdl/AqtkDzYo6/ukTM8rwbTO1ifqZ9+RbUW9Y
+      h0hGOeiFEDENyJ9UWEgcwQeP0aZv5oir9fDM/9dL46Bi0xOcBDIHKvzWp9GAPRxR
+      uwDZAoIBAG16l7GI4uwBFlXA3vnWbQp5RbV0YNMf5WErRik20Qn+d066qO7RTitq
+      /b0M040asTkxIlf25DZvkreePug7k4EZRSlWkC33Tz/dUMti/Pp5ydzznfRFx9HV
+      EE5opX5HhfvJWb2IemaK7Sr+v6v4knW9oBRUXoLG8agjuvO1GOzIvVWSG1bVlW5f
+      f2zwfsytVawbCypEgVsR8m7cex0UiO/L2hJiPeiHjkKv+s8FdKIR2NQifyA/Xgkx
+      xq4N09RUe7NeTDzlnIJvuCCCa57ruZmWzBqIR4zicV3ocmLoHni8HzrdYxjHKlEz
+      XhfaTxi6nA+1gvtF3ZZwJ5cP5JEjEbw=
+      -----END PRIVATE KEY-----
+

@@ -1,0 +1,7 @@
+env:    
+    # *** Label of the key to use for db encrption
+    CC_DB_CURRENT_KEY_LABEL: migrated_key
+
+secrets:
+    CC_DB_ENCRYPTION_KEYS:
+      migrated_key: "ZoaavarARBaMZh6hswCYhwusyo6lwYRhiZZVuX46dv4qREYe4Xfv38pZNtLszTLn"

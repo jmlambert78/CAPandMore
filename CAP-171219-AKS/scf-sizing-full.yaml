@@ -1,0 +1,274 @@
+
+# not included:
+# - components which are disabled by default (p.e. credhub_user)
+# - components which can't be changed (blobstore, post-deployment-setup)
+sizing:
+  # The adapter instance group can scale between 1 and 65535 instances.
+  adapter:
+    count: 2
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - adapter
+            topologyKey: "kubernetes.io/hostname"
+  # The api-group instance group can scale between 1 and 65535 instances.
+  api_group:
+    count: 3
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - api-group
+            topologyKey: "kubernetes.io/hostname"
+  blobstore:
+    count: 1
+    disk_sizes:
+      blobstore_data: 300
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - blobstore
+            topologyKey: "kubernetes.io/hostname"
+  # The cc-clock instance group can scale between 1 and 3 instances.
+  cc_clock:
+    count: 2
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - cc-clock
+            topologyKey: "kubernetes.io/hostname"
+  # The cc-uploader instance group can scale between 1 and 3 instances.
+  cc_uploader:
+    count: 2
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - cc-uploader
+            topologyKey: "kubernetes.io/hostname"
+  # The cc-worker instance group can scale between 1 and 65535 instances.
+  cc_worker:
+    count: 3
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - cc-worker
+            topologyKey: "kubernetes.io/hostname"
+  # The cf-usb instance group can scale between 1 and 3 instances.
+  cf_usb:
+    count: 1
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - cf-usb-group
+            topologyKey: "kubernetes.io/hostname"
+  # The diego-api instance group can scale between 1 and 3 instances.
+  diego_api:
+    count: 2
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - diego-api
+            topologyKey: "kubernetes.io/hostname"
+  # The diego-brain instance group can scale between 1 and 3 instances.
+  diego_brain:
+    count: 2
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - diego-brain
+            topologyKey: "kubernetes.io/hostname"
+  # The diego-cell instance group can scale between 1 and 254 instances.
+  diego_cell:
+    count: 2
+    memory:
+      request: 65536
+    disk_sizes:
+      grootfs_data: 100
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - diego-cell
+            topologyKey: "kubernetes.io/hostname"
+  diego_ssh:
+    count: 2
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - diego-ssh
+            topologyKey: "kubernetes.io/hostname"
+  # The doppler instance group can scale between 1 and 65535 instances.
+  doppler:
+    count: 2
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - doppler
+            topologyKey: "kubernetes.io/hostname"
+  # The log-api instance group can scale between 1 and 65535 instances.
+  log_api:
+    count: 2
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - log-api
+            topologyKey: "kubernetes.io/hostname"
+  # The mysql instance group can scale between 1 and 3 instances.
+  mysql:
+    count: 3
+    disk_sizes:
+      mysql_data: 30
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - mysql
+            topologyKey: "kubernetes.io/hostname"
+  # The nats instance group can scale between 1 and 3 instances.
+  nats:
+    count: 2
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - nats
+            topologyKey: "kubernetes.io/hostname"
+  # The nfs-broker instance group can scale between 1 and 3 instances.
+  nfs_broker:
+    count: 1
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - nfs-broker
+            topologyKey: "kubernetes.io/hostname"
+  # The router instance group can scale between 1 and 65535 instances.
+  router:
+    count: 3
+    memory:
+      request: 4096
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - router
+            topologyKey: "kubernetes.io/hostname"
+  # The routing-api instance group can scale between 1 and 3 instances.
+  routing_api:
+    count: 3
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - routing-api
+            topologyKey: "kubernetes.io/hostname"
+  # The syslog-scheduler instance group can scale between 1 and 3 instances.
+  syslog_scheduler:
+    count: 2
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - syslog-scheduler
+            topologyKey: "kubernetes.io/hostname"
+  # The tcp-router instance group can scale between 1 and 3 instances.
+  tcp_router:
+    count: 3
+    affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - tcp-router
+            topologyKey: "kubernetes.io/hostname"
+

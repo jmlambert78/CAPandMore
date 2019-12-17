@@ -1,0 +1,14 @@
+env:
+  DOPPLER_PORT: 443
+
+nginx:
+  username: linux
+  password: linux
+
+kubernetes:
+  authEndpoint: https://caasp-master1.private.jmllabsuse.com:6443
+
+prometheus:
+  kubeStateMetrics:
+    enabled: true
+useLb: true

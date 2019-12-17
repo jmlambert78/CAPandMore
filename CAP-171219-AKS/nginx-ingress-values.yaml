@@ -1,0 +1,17 @@
+#enable the creation of pod security policy
+podSecurityPolicy:
+  enabled: true
+
+# Create a specific service account
+serviceAccount:
+  create: true
+  name: nginx-ingress
+# Publish services on port HTTP/80
+# Publish services on port HTTPS/443
+# These services are exposed on the node with IP 192.168.1.113
+controller:
+  image:
+    repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
+    tag: "0.23.0"
+  service:
+    externalIPs: ["192.168.100.142", "192.168.100.143"]

@@ -1,0 +1,59 @@
+env:    
+    # Enter the domain you created for your CAP cluster
+    DOMAIN: cf1.jmllabsuse.com
+    
+    # UAA host and port
+    UAA_HOST: uaa.cf1.jmllabsuse.com
+    #UAA_PUBLIC_PORT: 443
+    UAA_PORT: 2793
+#    EIRINI_KUBE_HEAPSTER_ADDRESS: "http://heapster.kube-system/apis/metrics/v1alpha1"
+#enable:
+#  eirini: true
+kube:
+    # The IP address assigned to the kube node pointed to by the domain.
+    external_ips: ["52.137.15.210","10.0.1.6"]
+    
+    # Run kubectl get storageclasses
+    # to view your available storage classes
+    storage_class: 
+        persistent: nfs-client
+        shared: nfs-client
+        
+    # The registry the images will be fetched from. 
+    # The values below should work for
+    # a default installation from the SUSE registry.
+    registry: 
+        hostname: "registry.suse.com"
+        username: ""
+        password: ""
+    organization: "cap"
+
+secrets:
+    # Create a password for your CAP cluster
+    CLUSTER_ADMIN_PASSWORD: jmljml.cap
+    
+    # Create a password for your UAA client secret
+    UAA_ADMIN_CLIENT_SECRET: jmljml.cap
+enable:
+  # The autoscaler feature enables these instance groups: autoscaler_postgres,
+  # autoscaler_api, autoscaler_metrics, and autoscaler_actors
+  autoscaler: false
+
+  # The cf_usb feature enables these instance groups: cf_usb_group
+  cf_usb: true
+
+  # The credhub feature enables these instance groups: credhub_user
+  credhub: false
+
+  # The eirini feature enables these instance groups: eirini, eirini_persi,
+  # bits, and configure_eirini
+  # It disables these instance groups: diego_api, diego_brain, diego_ssh,
+  # nfs_broker, and diego_cell
+  eirini: false
+
+  # The mysql feature enables these instance groups: mysql and mysql_proxy
+  #mysql: true
+
+  # The uaa feature enables these instance groups: uaa
+  # uaa: true
+
