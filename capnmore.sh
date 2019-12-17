@@ -3,7 +3,7 @@
 #### Jean Marc LAMBERT, SUSE EMEA Consulting
 #### 07 AUG 2019
 #### FUNCTIONS used by the script
-set -x
+#set -x
 save-envvar(){
 	echo "$1" >> $AKSDEPLOYID/.envvar.sh
 }
@@ -78,11 +78,18 @@ get-chart-versions(){
 		   export SCF_HELM_VERSION=" suse/cf --version 2.18.0 "
 		   export CONSOLE_HELM_VERSION=" --version 2.6.0 "
 		   export METRICS_HELM_VERSION=" --version 1.1.0 "
-		   export NEXT_UPGRADE_PATH="1.5.1RC1"
+		   export NEXT_UPGRADE_PATH="1.5.1"
 		   ;;
-           "1.5.1RC1")
+           "1.5.1")
+                   export UAA_HELM_VERSION="suse/uaa --version 2.19.1 "
+                   export SCF_HELM_VERSION=" suse/cf --version 2.19.1 "
+                   export CONSOLE_HELM_VERSION=" --version 2.6.1 "
+                   export METRICS_HELM_VERSION=" --version 1.1.1 "
+                   export NEXT_UPGRADE_PATH="1.5.2"
+                   ;;
+           "1.5.1RC2")
                    export UAA_HELM_VERSION="NO"
-                   export SCF_HELM_VERSION=" /home/jmlambert/cap151RC1/helm/cf "
+                   export SCF_HELM_VERSION=" /home/jmlambert/cap151RC2/helm/cf "
                    export CONSOLE_HELM_VERSION=" --version 2.6.0 "
                    export METRICS_HELM_VERSION=" --version 1.1.0 "
                    export NEXT_UPGRADE_PATH="1.5.2"
@@ -104,7 +111,7 @@ log-action "CAP version $CAP_VERSION defined"
 select_cap-version(){
 	if [[ -z "${CAP_VERSION}" ]]; then
 	PS3='Please enter your choice: '
-	capversions=("1.3.0" "1.3.1" "1.4.0" "1.4.1" "1.5.0" "1.5.1RC1")
+	capversions=("1.3.0" "1.3.1" "1.4.0" "1.4.1" "1.5.0" "1.5.1" "1.5.1RC2")
 	select ver in "${capversions[@]}"
 	do
 	   get-chart-versions $ver
@@ -129,19 +136,35 @@ watch-pods-of-ns(){
 wait-for-pods-ready-of-ns(){
 log-action "Wait for pods readiness for $1"
 	echo "Wait for $1 pods to be ready"
-	PODSTATUS="1" ; NS=$1 ;
+	PODSTATUS="1" ; NS=$1 ; PN=$2
+	if [ -z "$PN" ]
+        then
+          while [ $PODSTATUS -ne "0" ]; do
+                sleep 20 ;
+                PODSTATUS=$(kubectl get pod -n $NS|awk 'BEGIN{cnt=0}!/Completed/{if(substr($2,1,1)<substr($2,3,1))cnt=cnt+1;}END{print cnt} ');
+                echo "Til $PODSTATUS pods to wait for in $NS";
+          done
+       else
+          while [ $PODSTATUS -ne "0" ]; do
+                sleep 20 ;
+                PODSTATUS=$(kubectl get pod -n $NS|grep $PN|awk 'BEGIN{cnt=0}!/Completed/{if(substr($2,1,1)<substr($2,3,1))cnt=cnt+1;}END{print cnt} ');
+                echo "Til $PODSTATUS pods to wait for in $NS";
+          done
+	 
+       fi
 	while [ $PODSTATUS -ne "0" ]; do
 		sleep 20 ;
 		PODSTATUS=$(kubectl get pod -n $NS|awk 'BEGIN{cnt=0}!/Completed/{if(substr($2,1,1)<substr($2,3,1))cnt=cnt+1;}END{print cnt} ');
 		echo "Til $PODSTATUS pods to wait for in $NS";
 	done
+
 log-action "All pods ready for $1"
 
 }
 install-helm(){
 	kubectl apply -f $AKSDEPLOYID/helm-rbac-config.yaml
 	helm init --service-account=tiller
-	wait-for-pods-ready-of-ns kube-system
+	wait-for-pods-ready-of-ns kube-system tiller
 }
 deploy-nfs-provisioner-local(){
 	helm install --name nfs-provisioner stable/nfs-client-provisioner -f $AKSDEPLOYID/nfs-client-provisioner-values.yaml --namespace=kube-system
@@ -161,22 +184,25 @@ deploy-cap-uaa(){
 }
 
 upgrade-cap-uaa(){
-    log-action "Upgrading UAA  $UAA_HELM_VERSION"
-    helm upgrade susecf-uaa $UAA_HELM_VERSION --force --recreate-pods --values $AKSDEPLOYID/scf-config-values.yaml
-    log-environment-helm
+    if [ ! "$UAA_HELM_VERSION" == "NO" ];then
+      log-action "Upgrading UAA  $UAA_HELM_VERSION"
+      helm upgrade susecf-uaa $UAA_HELM_VERSION --force --recreate-pods --values $AKSDEPLOYID/scf-config-values.yaml
+      log-environment-helm
+    fi
 }
 
 deploy-cap-scf(){
 	log-action "Installing SCF  $SCF_HELM_VERSION"
- 
-	SECRET=$(kubectl get pods --namespace uaa -o jsonpath='{.items[?(.metadata.name=="uaa-0")].spec.containers[?(.name=="uaa")].env[?(.name=="INTERNAL_CA_CERT")].valueFrom.secretKeyRef.name}');
-	CA_CERT="$(kubectl get secret $SECRET --namespace uaa -o jsonpath="{.data['internal-ca-cert']}" | base64 --decode -)";
-	echo "CA_CERT=$CA_CERT";
+        if [ ! "$UAA_HELM_VERSION" == "NO" ];then
+  	  SECRET=$(kubectl get pods --namespace uaa -o jsonpath='{.items[?(.metadata.name=="uaa-0")].spec.containers[?(.name=="uaa")].env[?(.name=="INTERNAL_CA_CERT")].valueFrom.secretKeyRef.name}');
+	  CA_CERT="$(kubectl get secret $SECRET --namespace uaa -o jsonpath="{.data['internal-ca-cert']}" | base64 --decode -)";
+	  echo "CA_CERT=$CA_CERT";
+        fi
 	helm install $SCF_HELM_VERSION --name susecf-scf --namespace scf --values $AKSDEPLOYID/scf-config-values.yaml --values $AKSDEPLOYID/scf-encryption-key.yaml --set "secrets.UAA_CA_CERT=${CA_CERT}"
 	log-environment-helm
 }
 deploy-cap-scf-rc1(){
-        log-action "Installing SCF  $SCF_HELM_VERSION 1.5.1 RC1 special"
+        log-action "Installing SCF  $SCF_HELM_VERSION 1.5.1 RC2 special"
         helm install $SCF_HELM_VERSION  --name susecf-scf --namespace scf --values $AKSDEPLOYID/scf-config-values.yaml --set kube.organization="cap-staging"
         log-environment-helm
 }
@@ -186,9 +212,11 @@ upgrade-cap-scf(){
 	log-action "Upgrading SCF  $SCF_HELM_VERSION"
 	# Options example "--force --grace-period=0"
 	local OPTIONS=$1
-	SECRET=$(kubectl get pods --namespace uaa -o jsonpath='{.items[?(.metadata.name=="uaa-0")].spec.containers[?(.name=="uaa")].env[?(.name=="INTERNAL_CA_CERT")].valueFrom.secretKeyRef.name}');
-	CA_CERT="$(kubectl get secret $SECRET --namespace uaa -o jsonpath="{.data['internal-ca-cert']}" | base64 --decode -)";
-	echo "CA_CERT=$CA_CERT";
+        if [ ! "$UAA_HELM_VERSION" == "NO" ];then
+	  SECRET=$(kubectl get pods --namespace uaa -o jsonpath='{.items[?(.metadata.name=="uaa-0")].spec.containers[?(.name=="uaa")].env[?(.name=="INTERNAL_CA_CERT")].valueFrom.secretKeyRef.name}');
+	  CA_CERT="$(kubectl get secret $SECRET --namespace uaa -o jsonpath="{.data['internal-ca-cert']}" | base64 --decode -)";
+	  echo "CA_CERT=$CA_CERT";
+        fi
 	helm upgrade susecf-scf suse/cf $SCF_HELM_VERSION --namespace scf $OPTIONS  --values $AKSDEPLOYID/scf-config-values.yaml --values $AKSDEPLOYID/scf-encryption-key.yaml --set "secrets.UAA_CA_CERT=${CA_CERT}"
 	log-environment-helm
 }
@@ -221,7 +249,7 @@ deploy-azure-catalog(){
 	log-action "Installing Azure Catalog"
 	helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com ;
 	helm repo update;
-	helm install svc-cat/catalog --name catalog --namespace catalog --set apiserver.storage.etcd.persistence.enabled=true \
+	helm install svc-cat/catalog  --name catalog --namespace catalog --set apiserver.storage.etcd.persistence.enabled=true \
 	--set apiserver.healthcheck.enabled=false --set controllerManager.healthcheck.enabled=false --set apiserver.verbosity=2 \
 	--set controllerManager.verbosity=2
 	log-environment-helm
@@ -246,7 +274,8 @@ delete-azure-servicebroker(){
 	fi
 }
 deploy-azure-osba(){
-	log-action "Installing Azure OSBA"
+set -x
+        log-action "Installing Azure OSBA"
 	helm repo add azure https://kubernetescharts.blob.core.windows.net/azure;
 	helm repo update;
 	TENANT_ID=$(echo ${SERVICE_PRINCIPAL_INFO} | jq -r '.tenant')
@@ -254,17 +283,19 @@ deploy-azure-osba(){
 	CLIENT_SECRET=$(echo ${SERVICE_PRINCIPAL_INFO} | jq -r '.password')
 	echo REGION=${REGION};
 	echo SUBSCRIPTION_ID=${SUBSCRIPTION_ID} \; TENANT_ID=${TENANT_ID}\; CLIENT_ID=${CLIENT_ID}\; CLIENT_SECRET=${CLIENT_SECRET}
-	helm install azure/open-service-broker-azure --name osba --namespace osba \
+	helm install azure/open-service-broker-azure  --name osba --namespace osba --debug\
 	--set azure.subscriptionId=${SUBSCRIPTION_ID} \
 	--set azure.tenantId=${TENANT_ID} \
 	--set azure.clientId=${CLIENT_ID} \
 	--set azure.clientSecret=${CLIENT_SECRET} \
 	--set azure.defaultLocation=${REGION} \
-	--set redis.persistence.storageClass=default \
+	--set redis.persistence.storageClass=nfs-client \
 	--set basicAuth.username=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 16) \
 	--set basicAuth.password=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 16) \
-	--set tls.enabled=false
+	--set tls.enabled=false \
+	--set registerBroker=false
 	log-environment-helm
+set +x
 }
 deploy-minibroker(){
 	log-action "Installing Minibroker"
@@ -696,7 +727,7 @@ do
 			cf-deploy-nodejs-ex1
             ;;
         "All localk8S")
-            if [ "$CAP_VERSION" == "1.5.1RC1" ];then
+            if [ "$CAP_VERSION" == "1.5.1RC2" ];then
                 deploy-cap-scf-rc1
     	    else
                 deploy-cap-uaa
