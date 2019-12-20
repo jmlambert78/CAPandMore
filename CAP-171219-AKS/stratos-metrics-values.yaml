@@ -6,7 +6,7 @@ nginx:
   password: linux
 
 kubernetes:
-  authEndpoint: https://caasp-master1.private.jmllabsuse.com:6443
+  authEndpoint: https://kube.cap4.jmllabsuse.com:6443
 
 prometheus:
   kubeStateMetrics:

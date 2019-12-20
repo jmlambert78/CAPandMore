@@ -11,7 +11,7 @@ image:
   pullPolicy: IfNotPresent
 
 nfs:
-  server: caasp4-admin.cf1.jmllabsuse.com
+  server: caasp4-admin.cap4.jmllabsuse.com
   path: /srv/nfsstore
   mountOptions:
 
